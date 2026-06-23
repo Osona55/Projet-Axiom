@@ -2,7 +2,7 @@
 # @autor : Osona
 
 #===Importation des modules===
-from math import pi, exp, log, sqrt, cos, sin, cosh, erf
+from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, arctan
 
 #===Error===
 
@@ -60,7 +60,7 @@ def fmean(data, weights = None) -> float :
     somme = 0
     for i in range(n):
         somme += data[i] * weights[i]
-    return somme
+    return somme / sum(weight)
 
 def geometric_mean(data) -> float :
     """Renvoie la moyenne géométrique de *data* sous la forme d'un float.
@@ -109,7 +109,7 @@ def harmonic_mean(data, weights = None) -> float :
             if x == 0:
                 return 0
             somme += 1/x
-        return n/sum
+        return n / somme
     m : int = len(weights)
     if n!=m:
         raise StatisticsError("Attention entrées avec des dimensions différentes")
@@ -124,7 +124,7 @@ def harmonic_mean(data, weights = None) -> float :
             raise StatisticsError("Attention poids négatif")
         somme += (1/x)*w
         s_weights += w
-    return s_weights/somme
+    return s_weights / somme
 
 #===Médianes===
 
@@ -210,7 +210,7 @@ def median_grouped(data, interval=1.0):
     L = m - interval / 2
     f_m = DATA.count(m)
     CF = sum(1 for v in DATA if v < m)
-    return L + (n/2-CF) / (f_m*interval)
+    return L + ((n/2 - CF) / f_m) * interval
 
 #===Mode===
 
@@ -406,7 +406,7 @@ def correlation(x, y, method : str = 'linear') -> float :
             i : int = 0
             while i < p:
                 j : int = i
-                while j < p - 1 and sorted_data[j][0] == sorted_data[j + 1][0]:
+                while j < p - 1 and sorted_data[j][1] == sorted_data[j + 1][0]:
                     j += 1
                 avg_rank : float = (i + j + 2) / 2.0
                 for k in range(i, j + 1):
@@ -568,7 +568,7 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = log( 1.0 + exp(2*u) ) / pi
+                k : float = 0.5 + arctan(sinh(u)) / pi
                 total += k
             return total / n
     elif kernel == 'rectangular':   #Kernel (noyau) rectangulaire ou uniform
