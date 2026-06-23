@@ -12,8 +12,8 @@ class StatisticsError(Exception):
 
 #===Moyennes===
 
-def mean(data):
-    """Renvoie la moyenne arithmétique de *data* sous la forme d'un float, ou un int dans les cas possibles.
+def mean(data) -> float:
+    """Renvoie la moyenne arithmétique de *data* sous la forme d'un float.
 
     Args:
         data (iterable): Échantillon dont on veut la moyenne arithmétique.
@@ -22,7 +22,7 @@ def mean(data):
         ValueError: Lorsque *data* est vide.
 
     Returns:
-        int or float: Moyenne arithmétique de *data*.
+        float: Moyenne arithmétique de *data*.
     """
     n : int = len(data)
     if n == 0:
@@ -322,7 +322,7 @@ def multimode(data) -> list :
             L.append(a)
     return L
 
-#===Variance, écart-type et MAD (Mean Absolute Deviation et Median Absolute Deviation)===
+#===Mesures de dispertion===
 
 def pvariance(data, mu = None) -> float :
     """Renvoie la variance de la population *data*.
@@ -390,11 +390,22 @@ def stdev(data, xbar = None) -> float:        #Écart-type avec la correction de
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: ÉCcart-type de l'échantillon de population *data*.
+        float: Écart-type de l'échantillon de population *data*.
     """
     return sqrt(variance(data, xbar))
 
 def mean_absolute_deviation(data) -> float:
+    """Renvoie la mean absolute value deviation (MAD) de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+
+    Returns:
+        float: Mean absolute value deviation de *data*
+    """
     n : int = len(data)
     if n == 0 :
         raise StatisticsError("Attention entrée vide")
@@ -402,12 +413,86 @@ def mean_absolute_deviation(data) -> float:
     return sum(abs(x - m) for x in data) / n
 
 def median_absolute_deviation(data) -> float:
+    """Renvoie la median absolute value deviation (MAD) de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+
+    Returns:
+        float: Median absolute value deviation de *data*
+    """
     n : int = len(data)
     if n == 0 :
         raise StatisticsError("Attention entrée vide")
     m : float = median(data)
     deviations : list[float] = [abs(x - m) for x in data]
     return median(deviations)
+
+def range_(data):
+    """Renvoie la range de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+
+    Returns:
+        _type_: Range de *data*.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    data_sorted : list = sorted(data)
+    return (data_sorted[-1] - data_sorted[0])
+
+def midrange(data) -> float:
+    """Renvoie la moitié de la range de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+
+    Returns:
+        float: Moitié de la range de *data*
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    data_sorted : list = sorted(data)
+    return (data_sorted[-1] - data_sorted[0]) / 2
+
+def cv(data, method : str = 'sample') -> float:
+    """Renvoie le coefficient de variation de *data* pour une population ou un échantillon.
+
+    Args:
+        data (iterable): Population ou échantillon de la population de données.
+        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        ZeroDivisionError: Moyenne de *data* est nulle.
+        StatisticsError: Lorsque *method* est non valide.
+
+    Returns:
+        float: Coefficient de variation de *data*.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    m : float = mean(data)
+    if m == 0.0 :
+        raise ZeroDivisionError("Attention le coefficient de variation est indéfini pour une moyenne nulle.")
+    if method == 'sample':      #Correction de Bessel
+        return stdev(data) / m
+    if method == 'population':
+        return pstdev(data) / m  
+    raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
 
 #===Entre deux entrées===
 
@@ -417,12 +502,12 @@ def covariance(x, y, method : str = 'sample') -> float :
     Args:
         x (iterable): Premier échantillon de données.
         y (iterable): Deuxième échantillon de données.
-        type (str, optional): Type de m'échantillon utilisé. Defaults to 'sample'.
+        type (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
-        StatisticsError: Lorsque *type* est non valide.
+        StatisticsError: Lorsque *method* est non valide.
 
     Returns:
         float: Covariance entre *x* et *y*.
@@ -488,6 +573,51 @@ def correlation(x, y, method : str = 'linear') -> float :
         ranks_x  : list = rankdata(x)
         ranks_y  : list = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
+    
+
+def kendall_tau(x, y) -> float:
+    """Renvoie le Tau-b de Kendall de deux échantillons *x* et *y*.
+
+    Args:
+        x (iterable):  Premier échantillon de données.
+        y (iterable): Deuxième échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque les échantillons sont trop petits.
+        StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
+        ZeroDivisionError: Lorsque toutes les valeurs sont liées.
+
+    Returns:
+        float: Tau-b de Kendall de *x* et *y*.
+    """
+    n : int = len(x)
+    if n != len(y):
+        raise StatisticsError("Attention entrées avec des dimensions différentes")
+    if n < 2:
+        raise StatisticsError("Attention taille de l'entrée trop petite")
+    concordant : int = 0
+    discordant : int = 0
+    ties_x : int = 0
+    ties_y : int = 0
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            dx = x[i] - x[j]
+            dy = y[i] - y[j]
+            if dx == 0 and dy == 0:
+                # paire liée dans les deux variables
+                continue
+            elif dx == 0:
+                ties_x += 1
+            elif dy == 0:
+                ties_y += 1
+            elif dx * dy > 0:
+                concordant += 1
+            else:
+                discordant += 1
+    denom : float = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
+    if denom == 0.0:
+        raise ZeroDivisionError("Attention toutes les valeurs sont liées.")
+    return (concordant - discordant) / denom
 
 def linear_regression(x, y, proportional : bool = False) -> float:
     """Renvoie la pente et l'intersection à zéro de la régréssion linéaire de *x* et *y*.
