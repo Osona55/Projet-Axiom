@@ -26,7 +26,7 @@ def mean(data):
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     return sum(data) / n
 
 def fmean(data, weights = None) -> float :
@@ -46,12 +46,12 @@ def fmean(data, weights = None) -> float :
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     if weights is None:
         return sum(data)/n
     m : int = len(weights)
     if m == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     if n != m:
         raise StatisticsError("Attention entrées avec des dimensions différentes")    
     somme = 0
@@ -74,11 +74,11 @@ def geometric_mean(data) -> float :
     """
     n : int = len(data)
     if n==0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     p : float = 0.0
     for x in data:
         if x <= 0:
-            raise StatisticsError("Attention valeur négative ou nulle en entré")
+            raise StatisticsError("Attention valeur négative ou nulle en entrée")
         p += log(x)
     return exp(p / n)
     
@@ -99,7 +99,7 @@ def harmonic_mean(data, weights = None) -> float :
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     if weights is None:
         somme : float = 0
         for x in data:
@@ -123,6 +123,66 @@ def harmonic_mean(data, weights = None) -> float :
         s_weights += w
     return s_weights / somme
 
+def trimmed_mean(data, h : float) -> float:
+    """Renvoie la moyenne tronquée de *data* sous la forme d'un float.
+
+    Args:
+        data (iterable): Échantillon dont on veut la moyenne tronquée.
+        h (float): Taux de troncature.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *h* est négatif.
+        StatisticsError: Lorsque *h* est trop grand.
+
+    Returns:
+        float: Moyenne tronquée de *data*.
+    """
+    n: int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    if h < 0:
+        raise StatisticsError("Attention h doit être positif")
+    if h == 0.0 :
+        return mean(data)
+    k : int = int(h * n)
+    if 2 * k >= n:
+        raise StatisticsError("Attention le taux de troncature h est trop grand.")
+    data_sorted : list = sorted(data)
+    somme : float = sum(data_sorted[i] for i in range(k, n - k))
+    return somme / (n - 2 * k)
+
+def winsorized_mean(data, h: float) -> float:
+    """Renvoie la moyenne winsorisée de *data* sous la forme d'un float.
+
+    Args:
+        data (iterable): Échantillon dont on veut la moyenne winsorisée.
+        h (float): Taux de winsorisation.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *h* est négatif.
+        StatisticsError: Lorsque *h* est trop grand.
+
+    Returns:
+        float: Moyenne winsorisée de *data*.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    if h < 0:
+        raise StatisticsError("Attention h doit être positif")
+    if h == 0.0:
+        return mean(data)
+    k : int = int(h * n)
+    if 2 * k >= n:
+        raise StatisticsError("Attention le taux de winsorisation h est trop grand")
+    x : list = sorted(data)
+    low = x[k]
+    high = x[n - k - 1]
+    winsorized :list = [low] * k + x[k:n-k] + [high] * k
+    return mean(winsorized)
+
 #===Médianes===
 
 def median(data):
@@ -139,7 +199,7 @@ def median(data):
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     L : list = sorted(data)
     mid : int = n // 2
     if n%2 == 0:
@@ -160,7 +220,7 @@ def median_low(data):
     """
     n : int = len(data)
     if n==0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     L=sorted(data)
     mid : int = n // 2
     if n%2==0:
@@ -181,7 +241,7 @@ def median_high(data):
     """
     n: int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     L=sorted(data)
     mid : int = n // 2
     return L[mid]
@@ -201,7 +261,7 @@ def median_grouped(data, interval=1.0):
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     DATA=sorted(data)
     m = DATA[n // 2]
     L = m - interval / 2
@@ -225,7 +285,7 @@ def mode(data):
     """
     n : int = len(data)
     if n==0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     D : dict = {}
     for x in data:
         if x not in D:
@@ -262,7 +322,7 @@ def multimode(data) -> list :
             L.append(a)
     return L
 
-#===Variance et écart-type===
+#===Variance, écart-type et MAD (Mean Absolute Deviation et Median Absolute Deviation)===
 
 def pvariance(data, mu = None) -> float :
     """Renvoie la variance de la population *data*.
@@ -279,7 +339,7 @@ def pvariance(data, mu = None) -> float :
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entré vide")
+        raise StatisticsError("Attention entrée vide")
     if mu is None:
         mu = mean(data)
     return sum((x-mu)**2 for x in data) / n
@@ -299,7 +359,7 @@ def variance(data, xbar = None) -> float :    #Variance avec la correction de Be
     """
     n : int = len(data)
     if n < 2:
-        raise StatisticsError("Attention taille de l'entré trop petite")
+        raise StatisticsError("Attention taille de l'entrée trop petite")
     if xbar is None:
         xbar = mean(data)
     return sum((x-xbar)**2 for x in data) / (n-1)
@@ -334,6 +394,21 @@ def stdev(data, xbar = None) -> float:        #Écart-type avec la correction de
     """
     return sqrt(variance(data, xbar))
 
+def mean_absolute_deviation(data) -> float:
+    n : int = len(data)
+    if n == 0 :
+        raise StatisticsError("Attention entrée vide")
+    m : float = mean(data)
+    return sum(abs(x - m) for x in data) / n
+
+def median_absolute_deviation(data) -> float:
+    n : int = len(data)
+    if n == 0 :
+        raise StatisticsError("Attention entrée vide")
+    m : float = median(data)
+    deviations : list[float] = [abs(x - m) for x in data]
+    return median(deviations)
+
 #===Entre deux entrées===
 
 def covariance(x, y, method : str = 'sample') -> float :
@@ -355,7 +430,7 @@ def covariance(x, y, method : str = 'sample') -> float :
     n : int = len(x)
     m : int = len(y)
     if n < 2 or m < 2 :
-        raise StatisticsError("Attention taille de l'entré trop petite")
+        raise StatisticsError("Attention taille de l'entrée trop petite")
     if n != m :
         raise StatisticsError("Attention entrées avec des dimensions différentes")
     xbar : float = mean(x)
@@ -386,7 +461,7 @@ def correlation(x, y, method : str = 'linear') -> float :
     n : int = len(x)
     m : int = len(y)
     if n < 2 or m < 2 :
-        raise StatisticsError("Attention taille de l'entré trop petite")
+        raise StatisticsError("Attention taille de l'entrée trop petite")
     if n != m :
         raise StatisticsError("Attention entrées avec des dimensions différentes")
     if method == 'linear':      #Corrélation de Pearson
@@ -436,7 +511,7 @@ def linear_regression(x, y, proportional : bool = False) -> float:
     if n != len(y):
         raise StatisticsError("Attention aux dimensions")
     if n < 2:
-        raise StatisticsError("Attention taille de l'entré trop petite")
+        raise StatisticsError("Attention taille de l'entrée trop petite")
     if not proportional:
         var_x : float = variance(x)
         if var_x == 0:
@@ -472,11 +547,11 @@ def quantiles(data, n : int = 4, method : str = 'exclusive') -> list :
     """
     N  : int = len(data)
     if N < 2 :
-        raise StatisticsError("Attention taille de l'entré trop petite")
+        raise StatisticsError("Attention taille de l'entrée trop petite")
     if n < 1 or type(n) != int:
         raise StatisticsError("n doit être un entier non nul positif")
     if n > N :
-        raise StatisticsError("Attention taille de l'entré trop petite par rapport à n ")
+        raise StatisticsError("Attention taille de l'entrée trop petite par rapport à n ")
     L : list = sorted(data)
     result : list = []
     for i in range(1,n):
