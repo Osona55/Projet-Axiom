@@ -20,12 +20,12 @@ Ce projet vise à **recréer from scratch des modules Python standards** afin de
 ### 📊 statistics (en cours)
 Reproduction de fonctions du module `statistics` de Python.
 
-Fonctions actuellement implémentées :
+Exemples de fonctions implémentées :
 - Moyenne (`mean`)
 - Médiane (`median`)
 - Variance (`variance`)
 - Écart-type (`stdev`)
-- (plus à venir...)
+etc...
 
 ---
 
