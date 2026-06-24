@@ -494,6 +494,42 @@ def cv(data, method : str = 'sample') -> float:
         return pstdev(data) / m  
     raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
 
+def z_score(data, method : str = 'sample') -> list[float]:
+    """Renvoie *data* sous forme d'une liste standardisée. 
+
+    Args:
+        data (iterable): Population ou échantillon de la population de données.
+        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *method* est non valide.
+        ZeroDivisionError: Lorsque l'écart-type est nul.
+
+    Returns:
+        list[float]: *data* standardisé.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    somme_std = 0.0
+    somme_carre = 0.0
+    for x in data:
+        somme_std += x
+        somme_carre += x * x
+    mean : float = somme_std / n
+    if method == 'population':
+        variance : float = somme_carre / n - mean * mean
+        stdev : float = sqrt(max(0.0, variance))
+    elif method == 'sample':       #Correction de Bessel
+        variance : float = (somme_carre - mean * mean * n) / (n - 1)
+        stdev : float = sqrt(max(0.0, variance))   
+    else:
+        raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
+    if stdev == 0.0:
+        raise ZeroDivisionError("Attention la variable est constante")
+    return [(x - mean) / stdev for x in data]
+
 #===Entre deux entrées===
 
 def covariance(x, y, method : str = 'sample') -> float :
@@ -573,7 +609,6 @@ def correlation(x, y, method : str = 'linear') -> float :
         ranks_x  : list = rankdata(x)
         ranks_y  : list = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
-    
 
 def kendall_tau(x, y) -> float:
     """Renvoie le Tau-b de Kendall de deux échantillons *x* et *y*.
