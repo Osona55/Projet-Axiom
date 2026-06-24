@@ -7,7 +7,7 @@ from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, atan
 #===Error===
 
 class StatisticsError(Exception):
-    """"Erreur spécifique aux fonctions de ce module"""
+    """Erreur spécifique aux fonctions de ce module"""
     pass
 
 #===Moyennes===
