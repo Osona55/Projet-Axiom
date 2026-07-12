@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @autor : Osona
+# @author : Osona
 
 #===Importation des modules===
 from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, atan
