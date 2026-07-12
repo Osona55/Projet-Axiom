@@ -564,7 +564,7 @@ def covariance(x, y, method : str = 'sample') -> float :
     elif method == 'population':
         return sum((x[i]-xbar)*(y[i]-ybar) for i in range(n)) / n
     else :
-        raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
+        raise StatisticsError("Attention methode non valide, method doit être 'sample' ou 'population'")
 
 def correlation(x, y, method : str = 'linear') -> float :
     """Renvoie la covariance de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
@@ -578,6 +578,7 @@ def correlation(x, y, method : str = 'linear') -> float :
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
         StatisticsError: Lorsque une des deux entrées est constante.
+        StatisticsError: Lorsque *method* est non valide.
 
     Returns:
         float: Correlation de Pearson ou de Spearman de *x* et *y*.
@@ -612,18 +613,22 @@ def correlation(x, y, method : str = 'linear') -> float :
         ranks_x  : list = rankdata(x)
         ranks_y  : list = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
+    else:
+        raise StatisticsError("Attention methode non valide, method doit être 'linear' ou 'ranked'")
 
-def kendall_tau(x, y) -> float :
+def kendall_tau(x, y, method : str = 'type_a') -> float :
     """Renvoie le Tau-b de Kendall de deux échantillons *x* et *y*.
 
     Args:
         x (iterable):  Premier échantillon de données.
         y (iterable): Deuxième échantillon de données.
+        method (str, optional): Type du Tau de Kendall. Defaults to 'type_a'.
 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
         StatisticsError: Lorsque toutes les valeurs sont liées.
+        StatisticsError: Lorsque *method* est non valide.
 
     Returns:
         float: Tau-b de Kendall de *x* et *y*.
@@ -635,27 +640,42 @@ def kendall_tau(x, y) -> float :
         raise StatisticsError("Attention taille de l'entrée trop petite")
     concordant : int = 0
     discordant : int = 0
-    ties_x : int = 0
-    ties_y : int = 0
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            dx = x[i] - x[j]
-            dy = y[i] - y[j]
-            if dx == 0 and dy == 0:
-                # paire liée dans les deux variables
-                continue
-            elif dx == 0:
-                ties_x += 1
-            elif dy == 0:
-                ties_y += 1
-            elif dx * dy > 0:
-                concordant += 1
-            else:
-                discordant += 1
-    denom : float = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
-    if denom == 0.0:
-        raise StatisticsError("Attention toutes les valeurs sont liées.")
-    return (concordant - discordant) / denom
+    if method == 'type_a':
+        for i in range(n - 1):
+            for j in range(i + 1,n):
+                dx = x[i] - x[j]
+                dy = y[i] - y[j]
+                if dx == 0 or dy == 0:
+                    continue
+                elif dx * dy > 0:
+                    concordant += 1
+                else:
+                    discordant += 1
+        return 2 * (concordant - discordant) / (n * (n -1))
+    elif method == 'type_b': 
+        ties_x : int = 0
+        ties_y : int = 0
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                dx = x[i] - x[j]
+                dy = y[i] - y[j]
+                if dx == 0 and dy == 0:
+                    # paire liée dans les deux variables
+                    continue
+                elif dx == 0:
+                    ties_x += 1
+                elif dy == 0:
+                    ties_y += 1
+                elif dx * dy > 0:
+                    concordant += 1
+                else:
+                    discordant += 1
+        denom : float = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
+        if denom == 0.0:
+            raise StatisticsError("Attention toutes les valeurs sont liées.")
+        return (concordant - discordant) / denom
+    else:
+        raise StatisticsError("Attention methode non valide, method doit être 'type_a' ou 'type_b'")
 
 def linear_regression(x, y, proportional : bool = False) -> tuple[float, float] :
     """Renvoie la pente et l'intersection à zéro de la régréssion linéaire de *x* et *y*.
