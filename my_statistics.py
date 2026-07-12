@@ -93,6 +93,7 @@ def harmonic_mean(data, weights = None) -> float :
         StatisticsError: Lorsque *data* est vide.
         StatisticsError: Lorsque *data* et *weights* n'ont pas la même dimension.
         StatisticsError: Lorsqu'un poids est négatif.
+        StatisticsError: Lorsqu'une des valeurs est négative.
 
     Returns:
         float: Moyenne harmonique de *data* pondérée par *weights*.
@@ -117,8 +118,10 @@ def harmonic_mean(data, weights = None) -> float :
         w = weights[i]
         if x == 0:
             return 0
-        if w<0:
+        if w < 0:
             raise StatisticsError("Attention poids négatif")
+        elif x < 0:
+            raise StatisticsError("Attention valeure négative")
         somme += (1/x)*w
         s_weights += w
     return s_weights / somme
@@ -465,7 +468,7 @@ def midrange(data) -> float:
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     data_sorted : list = sorted(data)
-    return (data_sorted[-1] - data_sorted[0]) / 2
+    return (data_sorted[-1] + data_sorted[0]) / 2
 
 def cv(data, method : str = 'sample') -> float:
     """Renvoie le coefficient de variation de *data* pour une population ou un échantillon.
@@ -476,7 +479,7 @@ def cv(data, method : str = 'sample') -> float:
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
-        ZeroDivisionError: Moyenne de *data* est nulle.
+        StatisticsError: Moyenne de *data* est nulle.
         StatisticsError: Lorsque *method* est non valide.
 
     Returns:
@@ -487,7 +490,7 @@ def cv(data, method : str = 'sample') -> float:
         raise StatisticsError("Attention entrée vide")
     m : float = mean(data)
     if m == 0.0 :
-        raise ZeroDivisionError("Attention le coefficient de variation est indéfini pour une moyenne nulle.")
+        raise StatisticsError("Attention le coefficient de variation est indéfini pour une moyenne nulle.")
     if method == 'sample':      #Correction de Bessel
         return stdev(data) / m
     if method == 'population':
@@ -504,7 +507,7 @@ def z_score(data, method : str = 'sample') -> list[float]:
     Raises:
         StatisticsError: Lorsque *data* est vide.
         StatisticsError: Lorsque *method* est non valide.
-        ZeroDivisionError: Lorsque l'écart-type est nul.
+        StatisticsError: Lorsque l'écart-type est nul.
 
     Returns:
         list[float]: *data* standardisé.
@@ -517,19 +520,19 @@ def z_score(data, method : str = 'sample') -> list[float]:
     for x in data:
         somme_std += x
         somme_carre += x * x
-    mean : float = somme_std / n
+    m : float = somme_std / n
     if method == 'population':
-        variance : float = somme_carre / n - mean * mean
-        stdev : float = sqrt(max(0.0, variance))
+        var : float = somme_carre / n - m * m
+        sd : float = sqrt(max(0.0, var))
     elif method == 'sample':       #Correction de Bessel
-        variance : float = (somme_carre - mean * mean * n) / (n - 1)
-        stdev : float = sqrt(max(0.0, variance))   
+        var : float = (somme_carre - m * m * n) / (n - 1)
+        sd : float = sqrt(max(0.0, var))   
     else:
         raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
-    if stdev == 0.0:
-        raise ZeroDivisionError("Attention la variable est constante")
-    return [(x - mean) / stdev for x in data]
-
+    if sd == 0.0:
+        raise StatisticsError("Attention la variable est constante")
+    return [(x - m) / sd for x in data]
+    
 #===Entre deux entrées===
 
 def covariance(x, y, method : str = 'sample') -> float :
@@ -538,7 +541,7 @@ def covariance(x, y, method : str = 'sample') -> float :
     Args:
         x (iterable): Premier échantillon de données.
         y (iterable): Deuxième échantillon de données.
-        type (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
@@ -574,7 +577,7 @@ def correlation(x, y, method : str = 'linear') -> float :
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
-        ZeroDivisionError: Lorsque une des deux entrées est constante.
+        StatisticsError: Lorsque une des deux entrées est constante.
 
     Returns:
         float: Correlation de Pearson ou de Spearman de *x* et *y*.
@@ -589,7 +592,7 @@ def correlation(x, y, method : str = 'linear') -> float :
         std_x : float = stdev(x)
         std_y : float = stdev(y)
         if std_x == 0.0 or std_y == 0.0 :
-            raise ZeroDivisionError("Attention une variable est constante")
+            raise StatisticsError("Attention une variable est constante")
         return covariance(x,y) / (std_x*std_y)
     elif method == 'ranked':     #Corrélation de Spearman
         def rankdata(data) -> list :
@@ -610,7 +613,7 @@ def correlation(x, y, method : str = 'linear') -> float :
         ranks_y  : list = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
 
-def kendall_tau(x, y) -> float:
+def kendall_tau(x, y) -> float :
     """Renvoie le Tau-b de Kendall de deux échantillons *x* et *y*.
 
     Args:
@@ -620,7 +623,7 @@ def kendall_tau(x, y) -> float:
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
-        ZeroDivisionError: Lorsque toutes les valeurs sont liées.
+        StatisticsError: Lorsque toutes les valeurs sont liées.
 
     Returns:
         float: Tau-b de Kendall de *x* et *y*.
@@ -651,10 +654,10 @@ def kendall_tau(x, y) -> float:
                 discordant += 1
     denom : float = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
     if denom == 0.0:
-        raise ZeroDivisionError("Attention toutes les valeurs sont liées.")
+        raise StatisticsError("Attention toutes les valeurs sont liées.")
     return (concordant - discordant) / denom
 
-def linear_regression(x, y, proportional : bool = False) -> float:
+def linear_regression(x, y, proportional : bool = False) -> tuple[float, float] :
     """Renvoie la pente et l'intersection à zéro de la régréssion linéaire de *x* et *y*.
     Soit a et b dans l'équation y = a*x+b .
 
@@ -666,8 +669,8 @@ def linear_regression(x, y, proportional : bool = False) -> float:
     Raises:
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
         StatisticsError: Lorsque la taille des échatillons n'est pas assez grande.
-        ZeroDivisionError: Lorsque *x* est constant, sa variance est nulle.
-        ZeroDivisionError: Lorsque *x* est un échantillon de zéro.
+        StatisticsError: Lorsque *x* est constant, sa variance est nulle.
+        StatisticsError: Lorsque *x* est un échantillon de zéro.
 
     Returns:
         float,float: Pente et intersection à zéro de la régression linéaire.
@@ -680,13 +683,13 @@ def linear_regression(x, y, proportional : bool = False) -> float:
     if not proportional:
         var_x : float = variance(x)
         if var_x == 0:
-            raise ZeroDivisionError("Attention x est constant")
+            raise StatisticsError("Attention x est constant")
         slope : float = covariance(x,y)/var_x
         intercept : float = mean(y)-slope*mean(x)
         return slope, intercept
     denom : float = sum(xi*xi for xi in x)
     if denom == 0.0 :
-        raise ZeroDivisionError("Attention tous les x sont égaux à zéro")
+        raise StatisticsError("Attention tous les x sont égaux à zéro")
     slope = sum(xi*yi for xi, yi in zip(x, y)) / denom
     intercept = 0.0
     return slope, intercept
