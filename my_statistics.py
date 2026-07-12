@@ -19,7 +19,7 @@ def mean(data) -> float:
         data (iterable): Échantillon dont on veut la moyenne arithmétique.
 
     Raises:
-        ValueError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *data* est vide.
 
     Returns:
         float: Moyenne arithmétique de *data*.
