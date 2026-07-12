@@ -121,7 +121,7 @@ def harmonic_mean(data, weights = None) -> float :
         if w < 0:
             raise StatisticsError("Attention poids négatif")
         elif x < 0:
-            raise StatisticsError("Attention valeure négative")
+            raise StatisticsError("Attention valeur négative")
         somme += (1/x)*w
         s_weights += w
     return s_weights / somme
