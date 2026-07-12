@@ -249,22 +249,25 @@ def median_high(data):
     mid : int = n // 2
     return L[mid]
 
-def median_grouped(data, interval=1.0):
+def median_grouped(data, interval : float = 1.0) -> float:
     """Renvoie la médiane groupée d'un ensemble de données *data*.
 
     Args:
-        data (_type_): Ensemble des observations numériques. Les données ne doivent pas être vides.
-        interval (float, optional): Largeur supposée des classes. Doit être strictement positive. Defaults to 1.0.
+        data (iterable): Ensemble des observations numériques. Les données ne doivent pas être vides.
+        interval (float, optional): Largeur supposée des classes. Doit être strictement positif. Defaults to 1.0.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *interval* n'est pas strictement positif.
 
     Returns:
-        _type_: Médiane estimée.
+        float: Médiane estimée.
     """
     n : int = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
+    if interval <= 0.0:
+        raise StatisticsError("Attention l'interval doit etre strictement positif")
     DATA=sorted(data)
     m = DATA[n // 2]
     L = m - interval / 2
