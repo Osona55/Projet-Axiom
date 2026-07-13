@@ -186,6 +186,36 @@ def winsorized_mean(data, h: float) -> float:
     winsorized :list = [low] * k + x[k:n-k] + [high] * k
     return mean(winsorized)
 
+def trimean(data) -> float:
+    """Renvoie la trimoyenne de Tukey de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande.
+
+    Returns:
+        float: Trimoyenne de *data*.
+    """
+    q : list = quantiles(data, n=4)
+    return (q[0] + 2 * q[1] + q[2]) / 4
+
+def midhinge(data) -> float:
+    """Renvoie la midhinge (moyenne du premier et du troisième quartile) de *data*.
+
+    Args:
+        data (iterable): Échantillon de données.
+
+    Raises:
+        StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande.
+
+    Returns:
+        float: Midhinge de *data*.
+    """
+    q : list = quantiles(data, n=4)
+    return (q[0] + q[2]) / 2
+
 #===Médianes===
 
 def median(data):
@@ -274,6 +304,43 @@ def median_grouped(data, interval : float = 1.0) -> float:
     f_m = DATA.count(m)
     CF = sum(1 for v in DATA if v < m)
     return L + ((n/2 - CF) / f_m) * interval
+
+def weighted_median(data, weights):
+    """Renvoie la médiane pondérée de *data* selon les poids *weights*.
+
+    Args:
+        data (iterable): Échantillon de données.
+        weights (iterable): Poids associés à chaque valeur de *data*.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque *data* et *weights* n'ont pas la même dimension.
+        StatisticsError: Lorsqu'un poids est négatif.
+        StatisticsError: Lorsque la somme des poids est nulle.
+
+    Returns:
+        float: Médiane pondérée de *data*.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    if n != len(weights):
+        raise StatisticsError("Attention entrées avec des dimensions différentes")
+    if any(w < 0 for w in weights):
+        raise StatisticsError("Attention poids négatif")
+    total : float = sum(weights)
+    if total == 0:
+        raise StatisticsError("Attention somme des poids nulle")
+    pairs : list = sorted(zip(data, weights), key=lambda p: p[0])
+    cumul : float = 0.0
+    half : float = total / 2
+    for i, (x, w) in enumerate(pairs):
+        cumul += w
+        if cumul == half and i + 1 < len(pairs):
+            return (pairs[i][0] + pairs[i + 1][0]) / 2
+        if cumul > half:
+            return x
+    return pairs[-1][0]
 
 #===Mode===
 
@@ -535,6 +602,74 @@ def z_score(data, method : str = 'sample') -> list[float]:
     if sd == 0.0:
         raise StatisticsError("Attention la variable est constante")
     return [(x - m) / sd for x in data]
+
+def skewness(data, method : str = 'sample') -> float:
+    """Renvoie le coefficient d'asymétrie (skewness) de *data*.
+
+    Args:
+        data (iterable): Échantillon ou population de données.
+        method (str, optional): 'population' pour le coefficient brut g1, 'sample' pour la version corrigée G1 (correction de Fisher-Pearson). Defaults to 'sample'.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque l'écart-type de la population est nul.
+        StatisticsError: Lorsque la taille de l'entrée est trop petite pour 'sample'.
+        StatisticsError: Lorsque *method* est non valide.
+
+    Returns:
+        float: Coefficient d'asymétrie de *data*.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    m : float = mean(data)
+    m2 : float = sum((x - m) ** 2 for x in data) / n
+    m3 : float = sum((x - m) ** 3 for x in data) / n
+    if m2 == 0.0:
+        raise StatisticsError("Attention écart-type nul")
+    g1 : float = m3 / (m2 ** 1.5)
+    if method == 'population':
+        return g1
+    elif method == 'sample':
+        if n < 3:
+            raise StatisticsError("Attention taille de l'entrée trop petite")
+        return (sqrt(n * (n - 1)) / (n - 2)) * g1
+    else:
+        raise StatisticsError("Attention method non valide, method doit être 'sample' ou 'population'")
+
+def kurtosis(data, method : str = 'sample') -> float:
+    """Renvoie le coefficient d'aplatissement (excess kurtosis) de *data*.
+
+    Args:
+        data (iterable): Échantillon ou population de données.
+        method (str, optional): 'population' pour le coefficient brut g2, 'sample' pour la version corrigée G2 (correction de Fisher-Pearson). Defaults to 'sample'.
+
+    Raises:
+        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque l'écart-type de la population est nul.
+        StatisticsError: Lorsque la taille de l'entrée est trop petite pour 'sample'.
+        StatisticsError: Lorsque *method* est non valide.
+
+    Returns:
+        float: Coefficient d'aplatissement (excess kurtosis) de *data*, 0 pour une loi normale.
+    """
+    n : int = len(data)
+    if n == 0:
+        raise StatisticsError("Attention entrée vide")
+    m : float = mean(data)
+    m2 : float = sum((x - m) ** 2 for x in data) / n
+    m4 : float = sum((x - m) ** 4 for x in data) / n
+    if m2 == 0.0:
+        raise StatisticsError("Attention écart-type nul")
+    g2 : float = m4 / (m2 ** 2) - 3
+    if method == 'population':
+        return g2
+    elif method == 'sample':
+        if n < 4:
+            raise StatisticsError("Attention taille de l'entrée trop petite")
+        return ((n - 1) / ((n - 2) * (n - 3))) * ((n + 1) * g2 + 6)
+    else:
+        raise StatisticsError("Attention method non valide, method doit être 'sample' ou 'population'")
     
 #===Entre deux entrées===
 
@@ -620,7 +755,7 @@ def correlation(x, y, method : str = 'linear') -> float :
         raise StatisticsError("Attention methode non valide, method doit être 'linear' ou 'ranked'")
 
 def kendall_tau(x, y, method : str = 'type_a') -> float :
-    """Renvoie le Tau-b de Kendall de deux échantillons *x* et *y*.
+    """Renvoie le Tau-a ou Tau-b de Kendall de deux échantillons *x* et *y*.
 
     Args:
         x (iterable):  Premier échantillon de données.
@@ -716,6 +851,35 @@ def linear_regression(x, y, proportional : bool = False) -> tuple[float, float] 
     slope = sum(xi*yi for xi, yi in zip(x, y)) / denom
     intercept = 0.0
     return slope, intercept
+
+def r_squared(x, y, proportional : bool = False) -> float:
+    """Renvoie le coefficient de détermination R² de la régression linéaire de *y* sur *x*.
+
+    Args:
+        x (iterable): Variable explicative.
+        y (iterable): Variable expliquée.
+        proportional (bool, optional): True si la régression est forcée à passer par zéro. Defaults to False.
+
+    Raises:
+        StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
+        StatisticsError: Lorsque la taille des échantillons n'est pas assez grande.
+        StatisticsError: Lorsque *y* est constant (variance totale nulle).
+
+    Returns:
+        float: Coefficient de détermination R².
+    """
+    n : int = len(x)
+    if n != len(y):
+        raise StatisticsError("Attention aux dimensions")
+    if n < 2:
+        raise StatisticsError("Attention taille de l'entrée trop petite")
+    slope, intercept = linear_regression(x, y, proportional=proportional)
+    ybar : float = mean(y)
+    ss_tot : float = sum((yi - ybar) ** 2 for yi in y)
+    if ss_tot == 0.0:
+        raise StatisticsError("Attention y est constant")
+    ss_res : float = sum((yi - (slope * xi + intercept)) ** 2 for xi, yi in zip(x, y))
+    return 1 - ss_res / ss_tot
 
 #===Quantiles===
 
