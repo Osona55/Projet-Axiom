@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # @author : Osona
 
-#===Importation des modules===
+#=== Importation des modules ===
 from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, atan
 
-#===Error===
+#=== Error ===
 
 class StatisticsError(Exception):
     """Erreur spécifique aux fonctions de ce module"""
     pass
 
-#===Moyennes===
+#=== Moyennes ===
 
 def mean(data) -> float:
     """Renvoie la moyenne arithmétique de *data* sous la forme d'un float.
@@ -106,6 +106,8 @@ def harmonic_mean(data, weights = None) -> float :
         for x in data:
             if x == 0:
                 return 0
+            if x < 0:
+                raise StatisticsError("Attention valeur négative")
             somme += 1/x
         return n / somme
     m : int = len(weights)
@@ -216,7 +218,7 @@ def midhinge(data) -> float:
     q : list = quantiles(data, n=4)
     return (q[0] + q[2]) / 2
 
-#===Médianes===
+#=== Médianes ===
 
 def median(data):
     """Renvoie la médiane de *data*.
@@ -342,7 +344,7 @@ def weighted_median(data, weights):
             return x
     return pairs[-1][0]
 
-#===Mode===
+#=== Mode ===
 
 def mode(data):
     """Renvoie la valeur la plus représentée (la première apparue si il y en a plusieurs) dans l'échantillon *data*.
@@ -395,7 +397,7 @@ def multimode(data) -> list :
             L.append(a)
     return L
 
-#===Mesures de dispertion===
+#=== Mesures de dispertion ===
 
 def pvariance(data, mu = None) -> float :
     """Renvoie la variance de la population *data*.
@@ -671,7 +673,7 @@ def kurtosis(data, method : str = 'sample') -> float:
     else:
         raise StatisticsError("Attention method non valide, method doit être 'sample' ou 'population'")
     
-#===Entre deux entrées===
+#=== Entre deux entrées ===
 
 def covariance(x, y, method : str = 'sample') -> float :
     """Renvoie la covariance entre les deux échantillons *x* et *y*.
@@ -881,7 +883,7 @@ def r_squared(x, y, proportional : bool = False) -> float:
     ss_res : float = sum((yi - (slope * xi + intercept)) ** 2 for xi, yi in zip(x, y))
     return 1 - ss_res / ss_tot
 
-#===Quantiles===
+#=== Quantiles ===
 
 def quantiles(data, n : int = 4, method : str = 'exclusive') -> list :
     """Divise *data* en *n* groupes de même probabilité et renvoie la liste des *n-1* bornes. 
@@ -928,7 +930,7 @@ def quantiles(data, n : int = 4, method : str = 'exclusive') -> list :
         result.append(q)
     return result
 
-#===Kernel===
+#=== Kernel ===
 
 def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
     """Renvoie une fonction de distribution continue ou une fonction de distribution cumulative (CDF) depuis des données discrètes.
@@ -998,7 +1000,7 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
                 k : float = 0.5 + atan(sinh(u)) / pi
                 total += k
             return total / n
-    elif kernel == 'rectangular':   #Kernel (noyau) rectangulaire ou uniform
+    elif kernel == 'rectangular':   #Kernel (noyau) rectangulaire ou uniforme
         def density(x):
             total : float = 0.0
             for xi in data:
@@ -1077,7 +1079,7 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
                 elif u > 1 :
                     k : float = 1.0
                 else :
-                    k : float =  0.5 + (5/8) * u - (5/4) * u**3 + (3/8) * u**5
+                    k : float = 0.5 + (15/16) * u - (5/8) * u**3 + (3/16) * u**5
                 total += k
             return total / n
     elif kernel == 'triweight':     #Kernel (noyau) cubique
