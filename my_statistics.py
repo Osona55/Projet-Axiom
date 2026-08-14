@@ -53,8 +53,8 @@ def fmean(data, weights = None) -> float :
     if m == 0:
         raise StatisticsError("Attention entrée vide")
     if n != m:
-        raise StatisticsError("Attention entrées avec des dimensions différentes")    
-    somme = 0
+        raise StatisticsError("Attention arguments avec des dimensions différentes")    
+    somme : float = 0.0
     for i in range(n):
         somme += data[i] * weights[i]
     return somme / sum(weights)
