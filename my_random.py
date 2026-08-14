@@ -295,10 +295,10 @@ def triangular(low : float, high : float, mode : float = None) -> float:
     if u < c:
         return low + sqrt(u * (high - low) * (mode - low))
     else:
-        return high - sqrt((1-u) * (high-low) * (high-mode))
+        return high - sqrt((1 - u) * (high - low) * (high - mode))
 
 def geometric(p : float) -> int:
-    """Génère un résultat aléatoire suivant une loi Géométrique(*p*).
+    """Génère un résultat aléatoire suivant une loi Géométrique de paramètre *p*.
 
     Args:
         p (float): Paramètre de la loi Géométrique
@@ -307,7 +307,7 @@ def geometric(p : float) -> int:
         RandomError: Lorsque *p* est négatif ou supérieur ou égal à 1.
 
     Returns:
-        int: Résultat aléatoire suivant une loi Géométrique(*p*)
+        int: Résultat aléatoire suivant une loi Géométrique de paramètre *p*.
     """
     if p <= 0 or p >= 1:
         raise RandomError("Attention p doit être compris entre 0 et 1 exclus")    
@@ -315,7 +315,7 @@ def geometric(p : float) -> int:
     return int(log(1-u) / log(1-p)) + 1
 
 def expovariate(lmbda : float = 1.0) -> float:
-    """Génère un résultat aléatoire suivant une loi Exponentielle(*lmbda*).
+    """Génère un résultat aléatoire suivant une loi Exponentielle de paramètres *lmbda*.
 
     Args:
         lmbda (float, optional): Paramètre de la loi Exponentielle. Defaults to 1.0.
@@ -324,14 +324,14 @@ def expovariate(lmbda : float = 1.0) -> float:
         RandomError: Lorsque *lmbda* est négatif.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Exponentielle(*lmbda*).
+        float: Résultat aléatoire suivant une loi Exponentielle de paramètre *lmbda*.
     """
     if lmbda <= 0.0:
         raise RandomError("Attention l'argument doit être strictement positif")
     return -log(1.0 - random()) / lmbda
 
 def gammavariate(alpha : float, beta : float = 1.0) -> float:
-    """Génère un résultat aléatoire suivant une loi Gamma(*alpha*, *beta*).
+    """Génère un résultat aléatoire suivant une loi Gamma de paramètres *alpha* et *beta*.
 
     Args:
         alpha (float): Paramètre strictement positif de forme (shape).
@@ -341,7 +341,7 @@ def gammavariate(alpha : float, beta : float = 1.0) -> float:
         RandomError: Lorsqu'*alpha* ou *beta* est négatif.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Gamma(*alpha*, *beta*).
+        float: Résultat aléatoire suivant une loi Gamma de paramètres *alpha* et *beta*.
     """
     if alpha <= 0.0 or beta <= 0.0:
         raise RandomError("Attention alpha et beta doivent être strictement positifs")
@@ -358,7 +358,7 @@ def gammavariate(alpha : float, beta : float = 1.0) -> float:
                 return d * v / beta
             
 def betavariate(alpha : float, beta : float) -> float:
-    """Génère une résultat aléatoire suivant une loi Beta(*alpha*, *beta*), construite à partir de deux lois Gamma indépendantes.
+    """Génère une résultat aléatoire suivant une loi Beta de paramètres *alpha* et *beta*, construite à partir de deux lois Gamma indépendantes.
 
     Args:
         alpha (float): Paramètre strictement positif de forme (shape) de la première loi Gamma.
@@ -368,7 +368,7 @@ def betavariate(alpha : float, beta : float) -> float:
         RandomError: Lorsqu'*alpha* ou *beta* est négatif.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Beta(*alpha*, *beta*).
+        float: Résultat aléatoire suivant une loi Beta de paramètres *alpha* et *beta*.
     """
     if alpha <= 0.0 or beta <= 0.0:
         raise RandomError("Attention alpha et beta doivent être strictement positifs")
@@ -380,7 +380,7 @@ def betavariate(alpha : float, beta : float) -> float:
     return x / (x + y)
 
 def gauss(mu : float = 0.0, sigma : float = 1.0) -> float:
-    """Génère un résultat aléatoire suivant une loi Normale(*mu*, *sigma*).
+    """Génère un résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     Utilise la transformation de Box-Muller (forme trigonométrique).
 
     Args:
@@ -388,26 +388,26 @@ def gauss(mu : float = 0.0, sigma : float = 1.0) -> float:
         sigma (float, optional): Écart-type de la loi Normale. Defaults to 1.0.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Normale(*mu*, *sigma*).
+        float: Résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     """
     x2pi = random() * 2 * pi
     g2rad = (-2.0 * log(1.0 - random())) ** 0.5
     return mu + cos(x2pi) * g2rad * sigma
 
 def lognormvariate(mu : float, sigma : float) -> float:
-    """Génère un résultat aléatoire esuivant une loi Log-Normale(*mu*, *sigma*).
+    """Génère un résultat aléatoire suivant une loi Log-Normale de paramètres *mu* et *sigma*.
 
     Args:
         mu (float): Moyenne de la loi Normale.
         sigma (float): Écart-type de la loi Normale.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Log-Normale(*mu*, *sigma*).
+        float: Résultat aléatoire suivant une loi Log-Normale de paramètres *mu* et *sigma*.
     """
     return exp(gauss(mu, sigma))
 
 def normalvariate(mu : float = 0.0, sigma : float = 1.0) -> float:
-    """Génère un résultat aléatoire suivant une loi Normale(*mu*, *sigma*).
+    """Génère un résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     Utilise la méthode du ratio d'uniformes de Kinderman & Monahan.
 
     Args:
@@ -415,7 +415,7 @@ def normalvariate(mu : float = 0.0, sigma : float = 1.0) -> float:
         sigma (float, optional): Écart-type de la loi Normale. Defaults to 1.0.
 
     Returns:
-        float: Résultat aléatoire suivant une loi Normale(*mu*, *sigma*).
+        float: Résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     """
     NVCONST : float = 4 * exp(-0.5) / (2.0 ** 0.5)
     while True:
@@ -436,7 +436,7 @@ def paretovariate(alpha : float) -> float:
         RandomError: Lorsqu'*alpha* est négatif.
 
     Returns:
-        float: Résultat aléatoire suivant une distribution de Pareto de paramètre *alpha*
+        float: Résultat aléatoire suivant une distribution de Pareto de paramètre *alpha*.
     """
     if alpha <= 0.0:
         raise RandomError("Attention alpha doit être strictement positif")
