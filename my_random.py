@@ -152,7 +152,7 @@ def choice(L):
         raise RandomError("Attention l'argument *L* est vide") 
     return L[randrange(n)]
 
-def shuffle(L) -> list :
+def shuffle(L) -> list:
     """Renvoie une liste copie de *L* mélangée par le mélange de Fisher-Yates. 
 
     Args:
@@ -196,7 +196,7 @@ def sample(L, n : int) -> list:
 
 #=== Octets et Bits ===
 
-def getrandbits(k: int) -> int:
+def getrandbits(k : int) -> int:
     """Génère un nombre avec *k* bits aléatoires.
 
     Args:
@@ -353,7 +353,7 @@ def gammavariate(alpha : float, beta : float = 1.0) -> float:
         z : float = (-2.0 * log(random())) ** 0.5 * cos(2 * pi * random())
         v : float = (1 + c * z) ** 3
         if v > 0:
-            u = random()
+            u = 1.0 - random()
             if u < 1 - 0.0331 * (z ** 4) or log(u) < 0.5 * z * z + d * (1 - v + log(v)):
                 return d * v / beta
             
