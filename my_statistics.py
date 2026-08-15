@@ -29,7 +29,7 @@ def mean(data) -> float:
         raise StatisticsError("Attention entrée vide")
     return sum(data) / n
 
-def fmean(data, weights = None) -> float :
+def fmean(data, weights = None) -> float:
     """Renvoie la moyenne arithmétique de *data* pondérée par *weights* sous la forme d'un float.
 
     Args:
@@ -59,7 +59,7 @@ def fmean(data, weights = None) -> float :
         somme += data[i] * weights[i]
     return somme / sum(weights)
 
-def geometric_mean(data) -> float :
+def geometric_mean(data) -> float:
     """Renvoie la moyenne géométrique de *data* sous la forme d'un float.
 
     Args:
@@ -82,7 +82,7 @@ def geometric_mean(data) -> float :
         p += log(x)
     return exp(p / n)
     
-def harmonic_mean(data, weights = None) -> float :
+def harmonic_mean(data, weights = None) -> float:
     """Renvoie la moyenne harmonique de *data* pondérée par *weights* sous la forme d'un float.
 
     Args:
@@ -333,7 +333,7 @@ def weighted_median(data, weights):
     total : float = sum(weights)
     if total == 0:
         raise StatisticsError("Attention somme des poids nulle")
-    pairs : list = sorted(zip(data, weights), key=lambda p: p[0])
+    pairs : list = sorted(zip(data, weights), key = lambda p: p[0])
     cumul : float = 0.0
     half : float = total / 2
     for i, (x, w) in enumerate(pairs):
@@ -372,7 +372,7 @@ def mode(data):
         if b == m:
             return a
         
-def multimode(data) -> list :
+def multimode(data) -> list:
     """Renvoie la liste des modes de *data* ou une liste vide si *data* est vide.
 
     Args:
@@ -399,7 +399,7 @@ def multimode(data) -> list :
 
 #=== Mesures de dispertion ===
 
-def pvariance(data, mu = None) -> float :
+def pvariance(data, mu = None) -> float:
     """Renvoie la variance de la population *data*.
 
     Args:
@@ -419,7 +419,7 @@ def pvariance(data, mu = None) -> float :
         mu = mean(data)
     return sum((x - mu) ** 2 for x in data) / n
 
-def variance(data, xbar = None) -> float :    #Variance avec la correction de Bessel
+def variance(data, xbar = None) -> float:    #Variance avec la correction de Bessel
     """Renvoie la variance de l'échantillon de la population *data*.
 
     Args:
@@ -439,7 +439,7 @@ def variance(data, xbar = None) -> float :    #Variance avec la correction de Be
         xbar : float = mean(data)
     return sum((x - xbar) ** 2 for x in data) / (n - 1)
 
-def pstdev(data, mu = None) -> float :
+def pstdev(data, mu = None) -> float:
     """Renvoie l'écart-type de la population *data*.
 
     Args:
@@ -675,7 +675,7 @@ def kurtosis(data, method : str = 'sample') -> float:
     
 #=== Entre deux entrées ===
 
-def covariance(x, y, method : str = 'sample') -> float :
+def covariance(x, y, method : str = 'sample') -> float:
     """Renvoie la covariance entre les deux échantillons *x* et *y*.
 
     Args:
@@ -706,7 +706,7 @@ def covariance(x, y, method : str = 'sample') -> float :
     else :
         raise StatisticsError("Attention methode non valide, method doit être 'sample' ou 'population'")
 
-def correlation(x, y, method : str = 'linear') -> float :
+def correlation(x, y, method : str = 'linear') -> float:
     """Renvoie la covariance de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
 
     Args:
@@ -736,7 +736,7 @@ def correlation(x, y, method : str = 'linear') -> float :
             raise StatisticsError("Attention une variable est constante")
         return covariance(x,y) / (std_x * std_y)
     elif method == 'ranked':     #Corrélation de Spearman
-        def rankdata(data) -> list :
+        def rankdata(data) -> list:
             p : int = len(data)
             sorted_data : list = sorted(enumerate(data), key = lambda x: x[1])
             ranks : list = [0] * p
@@ -756,7 +756,7 @@ def correlation(x, y, method : str = 'linear') -> float :
     else:
         raise StatisticsError("Attention methode non valide, method doit être 'linear' ou 'ranked'")
 
-def kendall_tau(x, y, method : str = 'type_a') -> float :
+def kendall_tau(x, y, method : str = 'type_a') -> float:
     """Renvoie le Tau-a ou Tau-b de Kendall de deux échantillons *x* et *y*.
 
     Args:
@@ -817,9 +817,9 @@ def kendall_tau(x, y, method : str = 'type_a') -> float :
     else:
         raise StatisticsError("Attention methode non valide, method doit être 'type_a' ou 'type_b'")
 
-def linear_regression(x, y, proportional : bool = False) -> tuple[float, float] :
+def linear_regression(x, y, proportional : bool = False) -> tuple[float, float]:
     """Renvoie la pente et l'intersection à zéro de la régréssion linéaire de *x* et *y*.
-    Soit a et b dans l'équation y = a*x+b .
+    Soit a et b dans l'équation y = a * x + b .
 
     Args:
         x (iterable): Premier échantillon de données.
@@ -885,7 +885,7 @@ def r_squared(x, y, proportional : bool = False) -> float:
 
 #=== Quantiles ===
 
-def quantiles(data, n : int = 4, method : str = 'exclusive') -> list :
+def quantiles(data, n : int = 4, method : str = 'exclusive') -> list:
     """Divise *data* en *n* groupes de même probabilité et renvoie la liste des *n-1* bornes. 
 
     Args:
@@ -932,7 +932,7 @@ def quantiles(data, n : int = 4, method : str = 'exclusive') -> list :
 
 #=== Kernel ===
 
-def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
+def kde(data, h, kernel : str = 'normal', cumulative : bool = False):
     """Renvoie une fonction de distribution continue ou une fonction de distribution cumulative (CDF) depuis des données discrètes.
 
     Args:
