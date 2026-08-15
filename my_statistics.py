@@ -73,7 +73,7 @@ def geometric_mean(data) -> float :
         float: Moyenne géométrique de *data*.
     """
     n : int = len(data)
-    if n==0:
+    if n == 0:
         raise StatisticsError("Attention entrée vide")
     p : float = 0.0
     for x in data:
@@ -111,7 +111,7 @@ def harmonic_mean(data, weights = None) -> float :
             somme += 1/x
         return n / somme
     m : int = len(weights)
-    if n!=m:
+    if n != m:
         raise StatisticsError("Attention entrées avec des dimensions différentes")
     somme : float = 0
     s_weights : float = 0
@@ -157,7 +157,7 @@ def trimmed_mean(data, h : float) -> float:
     somme : float = sum(data_sorted[i] for i in range(k, n - k))
     return somme / (n - 2 * k)
 
-def winsorized_mean(data, h: float) -> float:
+def winsorized_mean(data, h : float) -> float:
     """Renvoie la moyenne winsorisée de *data* sous la forme d'un float.
 
     Args:
@@ -175,7 +175,7 @@ def winsorized_mean(data, h: float) -> float:
     n : int = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    if h < 0:
+    if h < 0.0:
         raise StatisticsError("Attention h doit être positif")
     if h == 0.0:
         return mean(data)
@@ -185,7 +185,7 @@ def winsorized_mean(data, h: float) -> float:
     x : list = sorted(data)
     low = x[k]
     high = x[n - k - 1]
-    winsorized :list = [low] * k + x[k:n-k] + [high] * k
+    winsorized :list = [low] * k + x[k : n - k] + [high] * k
     return mean(winsorized)
 
 def trimean(data) -> float:
@@ -215,7 +215,7 @@ def midhinge(data) -> float:
     Returns:
         float: Midhinge de *data*.
     """
-    q : list = quantiles(data, n=4)
+    q : list = quantiles(data, n = 4)
     return (q[0] + q[2]) / 2
 
 #=== Médianes ===
@@ -237,8 +237,8 @@ def median(data):
         raise StatisticsError("Attention entrée vide")
     L : list = sorted(data)
     mid : int = n // 2
-    if n%2 == 0:
-        return (L[mid-1]+L[mid])/2
+    if n % 2 == 0:
+        return (L[mid - 1] + L[mid]) / 2
     return L[mid]
 
 def median_low(data):
@@ -254,12 +254,12 @@ def median_low(data):
         Any: Médiane basse de *data*.
     """
     n : int = len(data)
-    if n==0:
+    if n == 0:
         raise StatisticsError("Attention entrée vide")
-    L=sorted(data)
+    L : list = sorted(data)
     mid : int = n // 2
-    if n%2==0:
-        return L[mid-1]
+    if n % 2 == 0:
+        return L[mid - 1]
     return L[mid]
 
 def median_high(data):
@@ -274,10 +274,10 @@ def median_high(data):
     Returns:
         Any: Médiane haute de *data*.
     """
-    n: int = len(data)
+    n : int = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    L=sorted(data)
+    L : list = sorted(data)
     mid : int = n // 2
     return L[mid]
 
@@ -300,12 +300,12 @@ def median_grouped(data, interval : float = 1.0) -> float:
         raise StatisticsError("Attention entrée vide")
     if interval <= 0.0:
         raise StatisticsError("Attention l'interval doit etre strictement positif")
-    DATA=sorted(data)
+    DATA : list = sorted(data)
     m = DATA[n // 2]
     L = m - interval / 2
     f_m = DATA.count(m)
     CF = sum(1 for v in DATA if v < m)
-    return L + ((n/2 - CF) / f_m) * interval
+    return L + ((n / 2 - CF) / f_m) * interval
 
 def weighted_median(data, weights):
     """Renvoie la médiane pondérée de *data* selon les poids *weights*.
@@ -359,17 +359,17 @@ def mode(data):
         _type_: Mode (valeur la plus représentée) de *data*.
     """
     n : int = len(data)
-    if n==0:
+    if n == 0:
         raise StatisticsError("Attention entrée vide")
     D : dict = {}
     for x in data:
         if x not in D:
-            D[x]=1
+            D[x] = 1
         else:
-            D[x]+=1
-    m=max(D.values())
+            D[x] += 1
+    m = max(D.values())
     for a,b in D.items():
-        if b==m:
+        if b == m:
             return a
         
 def multimode(data) -> list :
@@ -387,13 +387,13 @@ def multimode(data) -> list :
     D : dict = {}
     for x in data:
         if x not in D:
-            D[x]=1
+            D[x] = 1
         else:
-            D[x]+=1
-    m=max(D.values())
+            D[x] += 1
+    m = max(D.values())
     L : list = []
     for a,b in D.items():
-        if b==m:
+        if b == m:
             L.append(a)
     return L
 
@@ -417,7 +417,7 @@ def pvariance(data, mu = None) -> float :
         raise StatisticsError("Attention entrée vide")
     if mu is None:
         mu = mean(data)
-    return sum((x-mu)**2 for x in data) / n
+    return sum((x - mu) ** 2 for x in data) / n
 
 def variance(data, xbar = None) -> float :    #Variance avec la correction de Bessel
     """Renvoie la variance de l'échantillon de la population *data*.
@@ -436,8 +436,8 @@ def variance(data, xbar = None) -> float :    #Variance avec la correction de Be
     if n < 2:
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if xbar is None:
-        xbar = mean(data)
-    return sum((x-xbar)**2 for x in data) / (n-1)
+        xbar : float = mean(data)
+    return sum((x - xbar) ** 2 for x in data) / (n - 1)
 
 def pstdev(data, mu = None) -> float :
     """Renvoie l'écart-type de la population *data*.
@@ -700,9 +700,9 @@ def covariance(x, y, method : str = 'sample') -> float :
     xbar : float = mean(x)
     ybar : float = mean(y)
     if method == 'sample':    #Correction de Bessel
-        return sum((x[i]-xbar)*(y[i]-ybar) for i in range(n)) / (n-1)
+        return sum((x[i] - xbar) * (y[i] - ybar) for i in range(n)) / (n - 1)
     elif method == 'population':
-        return sum((x[i]-xbar)*(y[i]-ybar) for i in range(n)) / n
+        return sum((x[i] - xbar) * (y[i] - ybar) for i in range(n)) / n
     else :
         raise StatisticsError("Attention methode non valide, method doit être 'sample' ou 'population'")
 
@@ -710,7 +710,7 @@ def correlation(x, y, method : str = 'linear') -> float :
     """Renvoie la covariance de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
 
     Args:
-        x (iteerable): Premier échantillon de données.
+        x (iterable): Premier échantillon de données.
         y (iterable): Deuxième échantillon de données.
         method (str, optional): Represente le type de corrélation utilisée 'linear' -> Pearson, 'ranked' -> Spearman. Defaults to 'linear'.
 
@@ -734,11 +734,11 @@ def correlation(x, y, method : str = 'linear') -> float :
         std_y : float = stdev(y)
         if std_x == 0.0 or std_y == 0.0 :
             raise StatisticsError("Attention une variable est constante")
-        return covariance(x,y) / (std_x*std_y)
+        return covariance(x,y) / (std_x * std_y)
     elif method == 'ranked':     #Corrélation de Spearman
         def rankdata(data) -> list :
             p : int = len(data)
-            sorted_data : list = sorted(enumerate(data), key=lambda x: x[1])
+            sorted_data : list = sorted(enumerate(data), key = lambda x: x[1])
             ranks : list = [0] * p
             i : int = 0
             while i < p:
@@ -842,15 +842,15 @@ def linear_regression(x, y, proportional : bool = False) -> tuple[float, float] 
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if not proportional:
         var_x : float = variance(x)
-        if var_x == 0:
+        if var_x == 0.0:
             raise StatisticsError("Attention x est constant")
-        slope : float = covariance(x,y)/var_x
-        intercept : float = mean(y)-slope*mean(x)
+        slope : float = covariance(x,y) / var_x
+        intercept : float = mean(y) - slope * mean(x)
         return slope, intercept
-    denom : float = sum(xi*xi for xi in x)
+    denom : float = sum(xi * xi for xi in x)
     if denom == 0.0 :
         raise StatisticsError("Attention tous les x sont égaux à zéro")
-    slope = sum(xi*yi for xi, yi in zip(x, y)) / denom
+    slope = sum(xi * yi for xi, yi in zip(x, y)) / denom
     intercept = 0.0
     return slope, intercept
 
@@ -1005,16 +1005,16 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = 0.5 if abs(u) <= 1 else 0.0
+                k : float = 0.5 if abs(u) <= 1.0 else 0.0
                 total += k
             return total / (n * h)
         def cdf(x):
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
                 else :
                     k : float = (u + 1) / 2
@@ -1025,18 +1025,18 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = 1.0 - abs(u) if abs(u) <= 1 else 0.0
+                k : float = 1.0 - abs(u) if abs(u) <= 1.0 else 0.0
                 total += k
             return total / (n * h)
         def cdf(x):
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
-                elif u < 0 :
+                elif u < 0.0:
                     k : float = 0.5 * (u + 1) * (u + 1)
                 else :
                     k : float = 1.0 - 0.5 * (1 - u) * (1 - u)
@@ -1047,16 +1047,16 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = (1.0 - u * u) if abs(u) <= 1 else 0.0
+                k : float = (1.0 - u * u) if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * 0.75) / (n * h)
         def cdf(x):
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
                 else :
                     k : float = 0.5 + 0.75 * u - 0.25 * (u ** 3)
@@ -1074,9 +1074,9 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
                 else :
                     k : float = 0.5 + (15/16) * u - (5/8) * u**3 + (3/16) * u**5
@@ -1087,16 +1087,16 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = (1.0 - u * u) ** 3 if abs(u) <= 1 else 0.0
+                k : float = (1.0 - u * u) ** 3 if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * 35) / (n * h * 32)
         def cdf(x):
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
                 else :
                     k : float =  0.5 + (35/32) * u - (35/32) * u**3 + (21/32) * u**5 - (5/32) * u**7
@@ -1107,16 +1107,16 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False) :
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                k : float = cos( (pi * u) / 2 ) if abs(u) <= 1 else 0.0
+                k : float = cos( (pi * u) / 2 ) if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * pi) / (n * h * 4)
         def cdf(x):
             total : float = 0.0
             for xi in data:
                 u : float = (x - xi) / h
-                if u < -1:
+                if u < -1.0:
                     k : float = 0.0
-                elif u > 1 :
+                elif u > 1.0:
                     k : float = 1.0
                 else :
                     k : float =  0.5 * (1.0 + sin(pi * u / 2))
