@@ -38,26 +38,29 @@ def fmean(data, weights = None) -> float:
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
-        StatisticsError: Lorsque *weights* est vide.
         StatisticsError: Lorsque *data* et *weights* n'ont pas la même dimension.
+        StatisticsError: Lorsqu'un des poids est négatif.
+        StatisticsError: Lorsque tous les poids sont nuls.
 
     Returns:
         float: Moyenne arithmétique de *data* pondérée par *weights*.
     """
     n : int = len(data)
     if n == 0:
-        raise StatisticsError("Attention entrée vide")
+        raise StatisticsError("Attention entréé vide")
     if weights is None:
-        return sum(data)/n
-    m : int = len(weights)
-    if m == 0:
-        raise StatisticsError("Attention entrée vide")
-    if n != m:
-        raise StatisticsError("Attention arguments avec des dimensions différentes")    
+        return sum(data) / n
+    if n != len(weights):
+        raise StatisticsError("Attention entrées avec des dimensions différentes")    
     somme : float = 0.0
     for i in range(n):
+        if weights[i] < 0.0:
+            raise StatisticsError("Attention aux poids négatifs")
         somme += data[i] * weights[i]
-    return somme / sum(weights)
+    somme_w : float = sum(weights)
+    if somme_w == 0.0:
+        raise StatisticsError("Attention tous les poids sont nuls") 
+    return somme / somme_w
 
 def geometric_mean(data) -> float:
     """Renvoie la moyenne géométrique de *data* sous la forme d'un float.
