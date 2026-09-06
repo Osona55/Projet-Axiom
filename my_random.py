@@ -14,31 +14,30 @@ class RandomError(Exception):
 #=== Seed (LCG) ===
 
 # paramètres du LCG
-M : int = 2**32
-B : int = 1664525
-C : int = 1013904223
+M = 2**32
+B = 1664525
+C = 1013904223
 
 # état initial
-state : int = int(time.time())
+state = int(time.time())
 
 def seed(a : int = None):
     """Initialise le générateur LCG.
 
     Args:
         a (int, optional): Key qui va initialiser le générateur, sinon il utilise l'heure actuelle. Defaults to None.
-        
+
     Raises:
         RandomError: Lorsque l'argument n'est ni None ni entier.
     """
     global state
-
     if a is None:
         state = int(time.time())
-    elif type(a) != int:
-        raise RandomError("Attention argument non entier")
+    elif not isinstance(a, int):
+        raise RandomError("Attention l'arguments n'est pas entier")
     else:
         state = a
-        
+
 def getstate() -> int:
     """Renvoie l'état actuel du générateur.
 
@@ -56,16 +55,16 @@ def setstate(_state : int) -> None:
     Raises:
         RandomError: Lorsque *_state* n'est pas un entier.
     """
-    if type(_state) != int:
-        raise RandomError("Attention _state doit être un entier")
+    if not isinstance(_state, int):
+        raise RandomError("Attention *_state* doit être un entier")
     global state
     state = _state
-    
+
 
 #=== Classique ===
 
 def random() -> float:
-    """Renvoie un flottant aléatoirement uniforme dans [0,1) par génération LGC.
+    """Renvoie un flottant aléatoirement uniforme dans [0,1) par génération LCG.
 
     Returns:
         float: flottant aléatoirement uniforme dans [0,1).
@@ -97,21 +96,21 @@ def randrange(start : int , stop : int = None, step : int = 1) -> int:
     if stop is None:
         stop = start
         start = 0
-    if type(start) != int or type(stop) != int or type(step) != int:
-        raise RandomError("Attention arguments non entiers.")
+    if not isinstance(start, int) or not isinstance(stop, int) or not isinstance(step, int):
+        raise RandomError("Attention les arguments ne sont pas entiers")
     if step == 0:
-        raise RandomError("Attention *step* ne peut pas être nul.")
+        raise RandomError("Attention *step* ne peut pas être nul")
     if step > 0:
         n = (stop - start + step - 1) // step
     else:
         n = (stop - start + step + 1) // step
     if n <= 0:
-        raise RandomError("Attention *range* vide pour randrange().")
+        raise RandomError("Attention *range* vide pour randrange()")
     k = int(random() * n)
     return start + k * step
 
 def randint(a : int, b : int) -> int:
-    """Renvoie un élément entier aléatoirement uniforme dans [a,b]. Renvoie a si a=b.
+    """Renvoie un élément entier aléatoirement uniforme dans [a,b]. Renvoie a si a = b.
 
     Args:
         a (int): Borne inférieure de l'ensemble.
@@ -124,7 +123,7 @@ def randint(a : int, b : int) -> int:
     Returns:
         int: Entier aléatoirement uniforme dans [a,b].
     """
-    if type(a) != int or type(b) != int :
+    if not isinstance(a, int) or not isinstance(b, int) :
         raise RandomError("Attention les arguments ne sont pas entiers")
     if a > b:
         raise RandomError("Attention la borne inférieure est plus grande que la borne supérieure")
@@ -147,13 +146,13 @@ def choice(L):
     Returns:
         _type_: Élément aléatoirement uniforme dans *L*.
     """
-    n : int = len(L)
+    n = len(L)
     if n == 0:
-        raise RandomError("Attention l'argument *L* est vide") 
+        raise RandomError("Attention l'argument *L* est vide")
     return L[randrange(n)]
 
 def shuffle(L) -> list:
-    """Renvoie une liste copie de *L* mélangée par le mélange de Fisher-Yates. 
+    """Renvoie une liste copie de *L* mélangée par le mélange de Fisher-Yates.
 
     Args:
         L (sequence): Séquence que l'on veut mélanger.
@@ -161,15 +160,13 @@ def shuffle(L) -> list:
     Returns:
         list: Copie de *L* mélangée.
     """
-    n : int = len(L)
+    n = len(L)
     if n == 0:
         return []
-    liste : list = []
-    for x in L:
-        liste.append(x)
+    liste = list(L)
     for i in range(n-1,0,-1):
         j=randint(0,i)
-        liste[j],liste[i]=liste[i],liste[j]
+        liste[j],liste[i] = liste[i],liste[j]
     return liste
 
 def sample(L, n : int) -> list:
@@ -186,8 +183,8 @@ def sample(L, n : int) -> list:
     Returns:
         list: Liste de *n* éléments aléatoires de *L*.
     """
-    if type(n) != int:
-        raise RandomError("Attention n n'est pas un entier")
+    if not isinstance(n, int):
+        raise RandomError("Attention *n* n'est pas un entier")
     if len(L) == 0:
         return []
     if n <= 0 or n > len(L):
@@ -200,7 +197,7 @@ def getrandbits(k : int) -> int:
     """Génère un nombre avec *k* bits aléatoires.
 
     Args:
-        k (int): Nombre de bits aléatoire.
+        k (int): Nombre de bits aléatoires.
 
     Raises:
         RandomError: Lorsque *k* n'est pas entier ou est strictement négatif.
@@ -208,7 +205,7 @@ def getrandbits(k : int) -> int:
     Returns:
         int: Nombre avec *k* bits aléatoires.
     """
-    if type(k) != int or k < 0:
+    if not isinstance(k, int) or k < 0:
         raise RandomError("Attention *k* doit être un entier positif ou nul")
     return randint(0, (1 << k) - 1)
 
@@ -216,7 +213,7 @@ def randbytes(n : int) -> bytes:
     """Génère *n* octets aléatoires.
 
     Args:
-        n (int): Nombre d'octets aléatoire.
+        n (int): Nombre d'octets aléatoires.
 
     Raises:
         RandomError: Lorsque *n* n'est pas entier ou est strictement négatif.
@@ -231,14 +228,14 @@ def randbytes(n : int) -> bytes:
 #=== Loi de distribution ===
 
 def uniform(a : float, b : float) -> float:
-    """Génère un flottant aléatoirement unforme dans [a,b).
+    """Génère un flottant aléatoirement uniforme dans [a,b).
 
     Args:
         a (float): Première borne de l'ensemble.
         b (float): Deuxième borne de l'ensemble.
 
     Returns:
-        float: Flottant aléatoirement unforme dans [a,b).
+        float: Flottant aléatoirement uniforme dans [a,b).
     """
     if a == b:
         return a
@@ -246,12 +243,12 @@ def uniform(a : float, b : float) -> float:
         return b + (a - b) * random()
     else :
         return a + (b - a) * random()
-    
+
 def binomialvariate(n : int = 1, p : float = 0.5) -> int:
-    """Génère un résultat aléatoire d'une succéssion de *n* épreuves indépendantes de Bernoulli de paramètre *p*.
+    """Génère un résultat aléatoire d'une succession de *n* épreuves indépendantes de Bernoulli de paramètre *p*.
 
     Args:
-        n (int, optional): Nombre de répétition des épreuves. Defaults to 1.
+        n (int, optional): Nombre de répétitions des épreuves. Defaults to 1.
         p (float, optional): Paramètre des épreuves. Defaults to 0.5.
 
     Raises:
@@ -259,22 +256,22 @@ def binomialvariate(n : int = 1, p : float = 0.5) -> int:
         RandomError: Lorsque *p* ne vérifie pas *0 <= p <= 1*.
 
     Returns:
-        int: Résultat aléatoire d'une succéssion de *n* épreuves indépendantes de Bernoulli de paramètre *p*.
+        int: Résultat aléatoire d'une succession de *n* épreuves indépendantes de Bernoulli de paramètre *p*.
     """
     if type(n) != int or n < 0:
-        raise RandomError("Attention n n'est pas un entier positif")
+        raise RandomError("Attention *n* n'est pas un entier positif")
     if n == 0:
         return 0
     if p < 0 or p > 1:
-        raise RandomError("Attention p doit être compris entre 0 et 1")
+        raise RandomError("Attention *p* doit être compris entre 0 et 1")
     return sum(random() < p for _ in range(n))
 
 def triangular(low : float, high : float, mode : float = None) -> float:
     """Génère un résultat aléatoire suivant une loi Triangulaire entre *low* et *high*  ainsi que de sommet *mode*.
 
     Args:
-        low (float): Borne inférieure de la base du Tirangle.
-        high (float): Borne supérieure de la base du Tirangle.
+        low (float): Borne inférieure de la base du Triangle.
+        high (float): Borne supérieure de la base du Triangle.
         mode (float, optional): Sommet du Triangle. Defaults to None.
 
     Raises:
@@ -285,13 +282,13 @@ def triangular(low : float, high : float, mode : float = None) -> float:
         float: Résultat aléatoire suivant une loi Triangulaire entre *low* et *high*  ainsi que de sommet *mode*.
     """
     if high <= low:
-        raise RandomError("Attention high doit être supérieur low")
+        raise RandomError("Attention *high* doit être supérieur à *low*")
     if mode is None:
-        mode : float = (low + high) / 2
+        mode = (low + high) / 2
     if not (low <= mode <= high):
-        raise RandomError("Attention mode doit être entre low et high")
-    u : float = random()
-    c : float = (mode - low) / (high - low)
+        raise RandomError("Attention *mode* doit être entre *low* et *high*")
+    u = random()
+    c = (mode - low) / (high - low)
     if u < c:
         return low + sqrt(u * (high - low) * (mode - low))
     else:
@@ -310,8 +307,8 @@ def geometric(p : float) -> int:
         int: Résultat aléatoire suivant une loi Géométrique de paramètre *p*.
     """
     if p <= 0 or p >= 1:
-        raise RandomError("Attention p doit être compris entre 0 et 1 exclus")    
-    u : float = random()
+        raise RandomError("Attention *p* doit être compris entre 0 et 1 exclus")
+    u = random()
     return int(log(1-u) / log(1-p)) + 1
 
 def expovariate(lmbda : float = 1.0) -> float:
@@ -344,21 +341,21 @@ def gammavariate(alpha : float, beta : float = 1.0) -> float:
         float: Résultat aléatoire suivant une loi Gamma de paramètres *alpha* et *beta*.
     """
     if alpha <= 0.0 or beta <= 0.0:
-        raise RandomError("Attention alpha et beta doivent être strictement positifs")
+        raise RandomError("Attention *alpha* et *beta* doivent être strictement positifs")
     if alpha < 1.0:     # Transformation d'Ahrens & Dieter
         return gammavariate(alpha + 1.0, beta) * (random() ** (1.0 / alpha))
-    d : float = alpha - 1.0 / 3.0
-    c : float = 1.0 / (9 * d) ** 0.5
+    d = alpha - 1.0 / 3.0
+    c = 1.0 / (9 * d) ** 0.5
     while True:
-        z : float = (-2.0 * log(random())) ** 0.5 * cos(2 * pi * random())
-        v : float = (1 + c * z) ** 3
+        z = (-2.0 * log(random())) ** 0.5 * cos(2 * pi * random())
+        v = (1 + c * z) ** 3
         if v > 0:
             u = 1.0 - random()
             if u < 1 - 0.0331 * (z ** 4) or log(u) < 0.5 * z * z + d * (1 - v + log(v)):
                 return d * v / beta
-            
+
 def betavariate(alpha : float, beta : float) -> float:
-    """Génère une résultat aléatoire suivant une loi Beta de paramètres *alpha* et *beta*, construite à partir de deux lois Gamma indépendantes.
+    """Génère un résultat aléatoire suivant une loi Beta de paramètres *alpha* et *beta*, construite à partir de deux lois Gamma indépendantes.
 
     Args:
         alpha (float): Paramètre strictement positif de forme (shape) de la première loi Gamma.
@@ -371,9 +368,9 @@ def betavariate(alpha : float, beta : float) -> float:
         float: Résultat aléatoire suivant une loi Beta de paramètres *alpha* et *beta*.
     """
     if alpha <= 0.0 or beta <= 0.0:
-        raise RandomError("Attention alpha et beta doivent être strictement positifs")
-    x : float = gammavariate(alpha, 1.0)
-    y : float = gammavariate(beta, 1.0)
+        raise RandomError("Attention *alpha* et *beta* doivent être strictement positifs")
+    x = gammavariate(alpha, 1.0)
+    y = gammavariate(beta, 1.0)
     while x + y == 0.0:
         x = gammavariate(alpha, 1.0)
         y = gammavariate(beta, 1.0)
@@ -417,11 +414,11 @@ def normalvariate(mu : float = 0.0, sigma : float = 1.0) -> float:
     Returns:
         float: Résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     """
-    NVCONST : float = 4 * exp(-0.5) / (2.0 ** 0.5)
+    NVCONST = 4 * exp(-0.5) / (2.0 ** 0.5)
     while True:
-        u1 : float = random()
-        u2  : float = 1.0 - random()
-        z : float = NVCONST * (u1 - 0.5) / u2
+        u1 = random()
+        u2  = 1.0 - random()
+        z = NVCONST * (u1 - 0.5) / u2
         x = z * z / 4.0
         if x <= -log(u2):
             return mu + sigma * z
@@ -431,7 +428,7 @@ def paretovariate(alpha : float) -> float:
 
     Args:
         alpha (float): Paramètre de forme (shape) de la distribution de Pareto.
-        
+
     Raises:
         RandomError: Lorsqu'*alpha* est négatif.
 
@@ -439,8 +436,8 @@ def paretovariate(alpha : float) -> float:
         float: Résultat aléatoire suivant une distribution de Pareto de paramètre *alpha*.
     """
     if alpha <= 0.0:
-        raise RandomError("Attention alpha doit être strictement positif")
-    u : float = 1.0 - random()
+        raise RandomError("Attention *alpha* doit être strictement positif")
+    u = 1.0 - random()
     return u ** (-1.0 / alpha)
 
 def weibullvariate(alpha : float, beta : float) -> float:
@@ -457,11 +454,11 @@ def weibullvariate(alpha : float, beta : float) -> float:
         float: Résultat aléatoire suivant une distribution de Weibull de paramètres *alpha* et *beta*.
     """
     if alpha <= 0.0 or beta <= 0.0:
-        raise RandomError("Attention alpha et beta doivent etre positifs")
-    u : float = 1.0 - random()   # évite log(0) si u=1 exactement
+        raise RandomError("Attention *alpha* et *beta* doivent être positifs")
+    u = 1.0 - random()   # évite log(0) si u=1 exactement
     return beta * (-log(u)) ** (1.0 / alpha)
 
-def vonmisesvariate(mu : float, kappa : float) -> float:       
+def vonmisesvariate(mu : float, kappa : float) -> float:
     """Génère un résultat aléatoire suivant une distribution de Von Mises de paramètres *mu* et *kappa*.
 
     Args:
@@ -473,20 +470,20 @@ def vonmisesvariate(mu : float, kappa : float) -> float:
     """
     if kappa <= 1e-6:
         return 2 * pi * random()
-    s : float = 0.5 / kappa
-    r : float = s + sqrt(1.0 + s * s)
+    s = 0.5 / kappa
+    r = s + sqrt(1.0 + s * s)
     while True:
-        u1 : float = random()
-        z : float = cos(pi * u1)
-        d : float = z / (r + z)
-        u2 : float = random()
+        u1 = random()
+        z = cos(pi * u1)
+        d = z / (r + z)
+        u2 = random()
         if u2 < 1.0 - d * d or u2 <= (1.0 - d) * exp(d):
             break
-    q : float = 1.0 / r
-    f : float = (q + z) / (1.0 + q * z)
-    u3 : float = random()
+    q = 1.0 / r
+    f = (q + z) / (1.0 + q * z)
+    u3 = random()
     if u3 > 0.5:
-        theta : float = (mu + acos(f)) % (2 * pi)
+        theta = (mu + acos(f)) % (2 * pi)
     else:
-        theta : float = (mu - acos(f)) % (2 * pi)
+        theta = (mu - acos(f)) % (2 * pi)
     return theta
