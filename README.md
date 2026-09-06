@@ -1,6 +1,6 @@
 # 🧩 MyModules
 
-> Réimplémentation from scratch de plusieurs modules de la bibliothèque standard Python, avec un objectif d'apprentissage de l'algorithmique, des mathématiques et du fonctionnement interne des bibliothèques Python.
+Réimplémentation from scratch de plusieurs modules de la bibliothèque standard Python, avec un objectif d'apprentissage de l'algorithmique, des mathématiques et du fonctionnement interne des bibliothèques Python.
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-in%20development-orange)](https://github.com/Osona55/MyModules)
@@ -230,6 +230,18 @@ random
 math
 ██░░░░░░░░░░░░░░░░░░  À venir
 ```
+
+---
+
+## 📄 Licence
+
+Ce projet est distribué sous licence **MIT**.
+
+MyModules est une réimplémentation indépendante et pédagogique de certaines fonctionnalités proposées par les modules standards de Python (`random`, `statistics`, etc.).
+
+Le projet n'est pas affilié au projet Python ni à la Python Software Foundation.
+
+Voir le fichier [`LICENSE`](LICENSE) pour consulter le texte complet de la licence.
 
 ---
 
