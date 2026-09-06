@@ -72,7 +72,7 @@ Le générateur de base repose actuellement sur un **Linear Congruential Generat
 Xₙ₊₁ = (B × Xₙ + C) mod M
 ```
 
-avec :
+avec des paramètres connues de LCG:
 
 ```python
 M = 2**32
