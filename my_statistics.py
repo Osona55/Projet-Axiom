@@ -3,6 +3,7 @@
 
 #=== Importation des modules ===
 from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, atan
+from typing import Iterable, List, Union, Tuple, Any
 
 #=== Error ===
 
@@ -12,11 +13,11 @@ class StatisticsError(Exception):
 
 #=== Moyennes ===
 
-def mean(data) -> float:
+def mean(data: Iterable[float]) -> float:
     """Renvoie la moyenne arithmétique de *data* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne arithmétique.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne arithmétique.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -24,17 +25,18 @@ def mean(data) -> float:
     Returns:
         float: Moyenne arithmétique de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     return sum(data) / n
 
-def fmean(data, weights = None) -> float:
+def fmean(data: Iterable[float], weights: Union[Iterable[float], None] = None) -> float:
     """Renvoie la moyenne arithmétique de *data* pondérée par *weights* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne arthmétique pondérée.
-        weights (iterable, optional): Poids de la moyenne. Defaults to None.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne arithmétique pondérée.
+        weights (Iterable[float], optional): Poids de la moyenne. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -45,28 +47,30 @@ def fmean(data, weights = None) -> float:
     Returns:
         float: Moyenne arithmétique de *data* pondérée par *weights*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
-        raise StatisticsError("Attention entréé vide")
+        raise StatisticsError("Attention entrée vide")
     if weights is None:
         return sum(data) / n
+    weights = list(weights) if not isinstance(weights, list) else weights
     if n != len(weights):
-        raise StatisticsError("Attention entrées avec des dimensions différentes")    
-    somme : float = 0.0
+        raise StatisticsError("Attention entrées avec des dimensions différentes")
+    somme = 0.0
     for i in range(n):
         if weights[i] < 0.0:
             raise StatisticsError("Attention aux poids négatifs")
         somme += data[i] * weights[i]
-    somme_w : float = sum(weights)
+    somme_w = sum(weights)
     if somme_w == 0.0:
-        raise StatisticsError("Attention tous les poids sont nuls") 
+        raise StatisticsError("Attention tous les poids sont nuls")
     return somme / somme_w
 
-def geometric_mean(data) -> float:
+def geometric_mean(data: Iterable[float]) -> float:
     """Renvoie la moyenne géométrique de *data* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne géométrique.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne géométrique.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -75,22 +79,23 @@ def geometric_mean(data) -> float:
     Returns:
         float: Moyenne géométrique de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    p : float = 0.0
+    p = 0.0
     for x in data:
         if x <= 0:
             raise StatisticsError("Attention valeur négative ou nulle en entrée")
         p += log(x)
     return exp(p / n)
-    
-def harmonic_mean(data, weights = None) -> float:
+
+def harmonic_mean(data: Iterable[float], weights: Union[Iterable[float], None] = None) -> float:
     """Renvoie la moyenne harmonique de *data* pondérée par *weights* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne harmonique pondérée.
-        weights (iterable, optional): Poids de la moyenne. Defaults to None.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne harmonique pondérée.
+        weights (Iterable[float], optional): Poids de la moyenne. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -101,41 +106,47 @@ def harmonic_mean(data, weights = None) -> float:
     Returns:
         float: Moyenne harmonique de *data* pondérée par *weights*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if weights is None:
-        somme : float = 0
+        somme = 0
         for x in data:
             if x == 0:
-                return 0
+                return 0.0
             if x < 0:
                 raise StatisticsError("Attention valeur négative")
             somme += 1/x
         return n / somme
-    m : int = len(weights)
+    weights = list(weights) if not isinstance(weights, list) else weights
+    m = len(weights)
     if n != m:
         raise StatisticsError("Attention entrées avec des dimensions différentes")
-    somme : float = 0
-    s_weights : float = 0
+    somme = 0
+    s_weights = 0
     for i in range(n):
         x = data[i]
         w = weights[i]
         if x == 0:
-            return 0
+            return 0.0
         if w < 0:
             raise StatisticsError("Attention poids négatif")
         elif x < 0:
             raise StatisticsError("Attention valeur négative")
         somme += (1/x)*w
         s_weights += w
+    if s_weights == 0.0:
+        raise StatisticsError("Attention tous les poids sont nuls")
+    if somme == 0.0:
+        raise StatisticsError("Attention la somme harmonique est nulle")
     return s_weights / somme
 
-def trimmed_mean(data, h : float) -> float:
+def trimmed_mean(data: Iterable[float], h: float) -> float:
     """Renvoie la moyenne tronquée de *data* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne tronquée.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne tronquée.
         h (float): Taux de troncature.
 
     Raises:
@@ -146,25 +157,26 @@ def trimmed_mean(data, h : float) -> float:
     Returns:
         float: Moyenne tronquée de *data*.
     """
-    n: int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if h < 0:
         raise StatisticsError("Attention h doit être positif")
     if h == 0.0 :
         return mean(data)
-    k : int = int(h * n)
+    k = int(h * n)
     if 2 * k >= n:
         raise StatisticsError("Attention le taux de troncature h est trop grand.")
-    data_sorted : list = sorted(data)
-    somme : float = sum(data_sorted[i] for i in range(k, n - k))
+    data_sorted = sorted(data)
+    somme = sum(data_sorted[i] for i in range(k, n - k))
     return somme / (n - 2 * k)
 
-def winsorized_mean(data, h : float) -> float:
+def winsorized_mean(data: Iterable[float], h: float) -> float:
     """Renvoie la moyenne winsorisée de *data* sous la forme d'un float.
 
     Args:
-        data (iterable): Échantillon dont on veut la moyenne winsorisée.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la moyenne winsorisée.
         h (float): Taux de winsorisation.
 
     Raises:
@@ -175,27 +187,28 @@ def winsorized_mean(data, h : float) -> float:
     Returns:
         float: Moyenne winsorisée de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if h < 0.0:
         raise StatisticsError("Attention h doit être positif")
     if h == 0.0:
         return mean(data)
-    k : int = int(h * n)
+    k = int(h * n)
     if 2 * k >= n:
         raise StatisticsError("Attention le taux de winsorisation h est trop grand")
-    x : list = sorted(data)
+    x = sorted(data)
     low = x[k]
     high = x[n - k - 1]
-    winsorized :list = [low] * k + x[k : n - k] + [high] * k
+    winsorized = [low] * k + x[k : n - k] + [high] * k
     return mean(winsorized)
 
-def trimean(data) -> float:
+def trimean(data: Iterable[float]) -> float:
     """Renvoie la trimoyenne de Tukey de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande.
@@ -203,14 +216,15 @@ def trimean(data) -> float:
     Returns:
         float: Trimoyenne de *data*.
     """
-    q : list = quantiles(data, n=4)
+    data = list(data) if not isinstance(data, list) else data
+    q = quantiles(data, n=4)
     return (q[0] + 2 * q[1] + q[2]) / 4
 
-def midhinge(data) -> float:
+def midhinge(data: Iterable[float]) -> float:
     """Renvoie la midhinge (moyenne du premier et du troisième quartile) de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande.
@@ -218,77 +232,81 @@ def midhinge(data) -> float:
     Returns:
         float: Midhinge de *data*.
     """
-    q : list = quantiles(data, n = 4)
+    data = list(data) if not isinstance(data, list) else data
+    q = quantiles(data, n = 4)
     return (q[0] + q[2]) / 2
 
 #=== Médianes ===
 
-def median(data):
+def median(data: Iterable[float]) -> Union[float, int]:
     """Renvoie la médiane de *data*.
 
     Args:
-        data (iterable): Échantillon dont on veut la médiane.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la médiane.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        Any: Médiane de *data*.
+        Union[float, int]: Médiane de *data* (nombre réel).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    L : list = sorted(data)
-    mid : int = n // 2
+    L = sorted(data)
+    mid = n // 2
     if n % 2 == 0:
         return (L[mid - 1] + L[mid]) / 2
     return L[mid]
 
-def median_low(data):
+def median_low(data: Iterable[float]) -> Union[float, int]:
     """Renvoie la médiane basse de *data*, fonctionne même si les données ne sont pas numériques mais peuvent être triées.
 
     Args:
-        data (iterable): Échantillon dont on veut la médiane basse.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la médiane basse.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        Any: Médiane basse de *data*.
+        Union[float, int]: Médiane basse de *data* (nombre réel).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    L : list = sorted(data)
-    mid : int = n // 2
+    L = sorted(data)
+    mid = n // 2
     if n % 2 == 0:
         return L[mid - 1]
     return L[mid]
 
-def median_high(data):
+def median_high(data: Iterable[float]) -> Union[float, int]:
     """Renvoie la médiane haute de *data*, fonctionne même si les données ne sont pas numériques mais peuvent être triées.
 
     Args:
-        data (iterable): Échantillon dont on veut la médiane haute.
+        data (Iterable[float]): Échantillon de nombres réels dont on veut la médiane haute.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        Any: Médiane haute de *data*.
+        Union[float, int]: Médiane haute de *data* (nombre réel).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    L : list = sorted(data)
-    mid : int = n // 2
+    L = sorted(data)
+    mid = n // 2
     return L[mid]
 
-def median_grouped(data, interval : float = 1.0) -> float:
+def median_grouped(data: Iterable[float], interval: float = 1.0) -> float:
     """Renvoie la médiane groupée d'un ensemble de données *data*.
 
     Args:
-        data (iterable): Ensemble des observations numériques. Les données ne doivent pas être vides.
+        data (Iterable[float]): Ensemble des observations numériques. Les données ne doivent pas être vides.
         interval (float, optional): Largeur supposée des classes. Doit être strictement positif. Defaults to 1.0.
 
     Raises:
@@ -298,24 +316,27 @@ def median_grouped(data, interval : float = 1.0) -> float:
     Returns:
         float: Médiane estimée.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if interval <= 0.0:
-        raise StatisticsError("Attention l'interval doit etre strictement positif")
-    DATA : list = sorted(data)
+        raise StatisticsError("Attention l'intervalle doit être strictement positif")
+    DATA = sorted(data)
     m = DATA[n // 2]
     L = m - interval / 2
     f_m = DATA.count(m)
+    if f_m == 0:
+        raise StatisticsError("Attention erreur lors du calcul de la fréquence de la médiane")
     CF = sum(1 for v in DATA if v < m)
     return L + ((n / 2 - CF) / f_m) * interval
 
-def weighted_median(data, weights):
+def weighted_median(data: Iterable[float], weights: Iterable[float]) -> float:
     """Renvoie la médiane pondérée de *data* selon les poids *weights*.
 
     Args:
-        data (iterable): Échantillon de données.
-        weights (iterable): Poids associés à chaque valeur de *data*.
+        data (Iterable[float]): Échantillon de nombres réels.
+        weights (Iterable[float]): Poids associés à chaque valeur de *data*.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -326,19 +347,21 @@ def weighted_median(data, weights):
     Returns:
         float: Médiane pondérée de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    weights = list(weights) if not isinstance(weights, list) else weights
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if n != len(weights):
         raise StatisticsError("Attention entrées avec des dimensions différentes")
     if any(w < 0 for w in weights):
         raise StatisticsError("Attention poids négatif")
-    total : float = sum(weights)
+    total = sum(weights)
     if total == 0:
         raise StatisticsError("Attention somme des poids nulle")
-    pairs : list = sorted(zip(data, weights), key = lambda p: p[0])
-    cumul : float = 0.0
-    half : float = total / 2
+    pairs = sorted(zip(data, weights), key = lambda p: p[0])
+    cumul = 0.0
+    half = total / 2
     for i, (x, w) in enumerate(pairs):
         cumul += w
         if cumul == half and i + 1 < len(pairs):
@@ -349,22 +372,23 @@ def weighted_median(data, weights):
 
 #=== Mode ===
 
-def mode(data):
+def mode(data: Iterable[Any]) -> Any:
     """Renvoie la valeur la plus représentée (la première apparue si il y en a plusieurs) dans l'échantillon *data*.
 
     Args:
-        data (iterable of hashable): Échantillon dont on veut le mode.
+        data (Iterable[Any]): Échantillon dont on veut le mode.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        _type_: Mode (valeur la plus représentée) de *data*.
+        Any: Mode (valeur la plus représentée) de *data* (nombre réel ou type hachable).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    D : dict = {}
+    D = {}
     for x in data:
         if x not in D:
             D[x] = 1
@@ -374,27 +398,28 @@ def mode(data):
     for a,b in D.items():
         if b == m:
             return a
-        
-def multimode(data) -> list:
+
+def multimode(data: Iterable[Any]) -> List[Any]:
     """Renvoie la liste des modes de *data* ou une liste vide si *data* est vide.
 
     Args:
-        data (iterable of hashable): Échantillon dont on veut les modes.
+        data (Iterable[Any]): Échantillon dont on veut les modes.
 
     Returns:
-        list: Liste des modes de *data*.
+        List[Any]: Liste des modes de *data* (nombres réels ou types hachables).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         return list()
-    D : dict = {}
+    D = {}
     for x in data:
         if x not in D:
             D[x] = 1
         else:
             D[x] += 1
     m = max(D.values())
-    L : list = []
+    L = []
     for a,b in D.items():
         if b == m:
             L.append(a)
@@ -402,12 +427,12 @@ def multimode(data) -> list:
 
 #=== Mesures de dispertion ===
 
-def pvariance(data, mu = None) -> float:
+def pvariance(data: Iterable[float], mu: Union[float, None] = None) -> float:
     """Renvoie la variance de la population *data*.
 
     Args:
-        data (iterable): Population de données.
-        mu (int or float, optional): Moyenne de la population *data*. Defaults to None.
+        data (Iterable[float]): Population de nombres réels.
+        mu (float, optional): Moyenne de la population *data*. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -415,19 +440,20 @@ def pvariance(data, mu = None) -> float:
     Returns:
         float: Variance de la population.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if mu is None:
         mu = mean(data)
     return sum((x - mu) ** 2 for x in data) / n
 
-def variance(data, xbar = None) -> float:    #Variance avec la correction de Bessel
-    """Renvoie la variance de l'échantillon de la population *data*.
+def variance(data: Iterable[float], xbar: Union[float, None] = None) -> float:
+    """Renvoie la variance de l'échantillon de la population *data* (avec correction de Bessel).
 
     Args:
-        data (iterable): Échantillon de la population de données.
-        xbar (int or float, optional): Moyenne de l'échantillon *data*. Defaults to None.
+        data (Iterable[float]): Échantillon de nombres réels de la population de données.
+        xbar (float, optional): Moyenne de l'échantillon *data*. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -435,19 +461,20 @@ def variance(data, xbar = None) -> float:    #Variance avec la correction de Bes
     Returns:
         float: Variance de l'échantillon de population *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n < 2:
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if xbar is None:
-        xbar : float = mean(data)
+        xbar = mean(data)
     return sum((x - xbar) ** 2 for x in data) / (n - 1)
 
-def pstdev(data, mu = None) -> float:
+def pstdev(data: Iterable[float], mu: Union[float, None] = None) -> float:
     """Renvoie l'écart-type de la population *data*.
 
     Args:
-        data (iterable): Population de données.
-        mu (int or float, optional): Moyenne de la population *data*. Defaults to None.
+        data (Iterable[float]): Population de nombres réels.
+        mu (float, optional): Moyenne de la population *data*. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -455,14 +482,15 @@ def pstdev(data, mu = None) -> float:
     Returns:
         float: Écart-type de la population *data*.
     """
+    data = list(data) if not isinstance(data, list) else data
     return sqrt(pvariance(data, mu))
 
-def stdev(data, xbar = None) -> float:        #Écart-type avec la correction de Bessel
-    """Renvoie l'écart-type de l'échantillon de la population *data*.
+def stdev(data: Iterable[float], xbar: Union[float, None] = None) -> float:
+    """Renvoie l'écart-type de l'échantillon de la population *data* (avec correction de Bessel).
 
     Args:
-        data (iterable): Échantillon de la population de données.
-        xbar (int or float, optional): Moyenne de l'échantillon *data*. Defaults to None.
+        data (Iterable[float]): Échantillon de nombres réels de la population de données.
+        xbar (float, optional): Moyenne de l'échantillon *data*. Defaults to None.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -470,87 +498,90 @@ def stdev(data, xbar = None) -> float:        #Écart-type avec la correction de
     Returns:
         float: Écart-type de l'échantillon de population *data*.
     """
+    data = list(data) if not isinstance(data, list) else data
     return sqrt(variance(data, xbar))
 
-def mean_absolute_deviation(data) -> float:
+def mean_absolute_deviation(data: Iterable[float]) -> float:
     """Renvoie la mean absolute value deviation (MAD) de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: Mean absolute value deviation de *data*
+        float: Mean absolute value deviation de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0 :
         raise StatisticsError("Attention entrée vide")
-    m : float = mean(data)
+    m = mean(data)
     return sum(abs(x - m) for x in data) / n
 
-def median_absolute_deviation(data) -> float:
+def median_absolute_deviation(data: Iterable[float]) -> float:
     """Renvoie la median absolute value deviation (MAD) de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: Median absolute value deviation de *data*
+        float: Median absolute value deviation de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0 :
         raise StatisticsError("Attention entrée vide")
-    m : float = median(data)
-    deviations : list[float] = [abs(x - m) for x in data]
+    m = median(data)
+    deviations = [abs(x - m) for x in data]
     return median(deviations)
 
-def range_(data):
+def range_(data: Iterable[float]) -> float:
     """Renvoie la range de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        _type_: Range de *data*.
+        float: Range de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    data_sorted : list = sorted(data)
-    return (data_sorted[-1] - data_sorted[0])
+    return max(data) - min(data)
 
-def midrange(data) -> float:
+def midrange(data: Iterable[float]) -> float:
     """Renvoie la moitié de la range de *data*.
 
     Args:
-        data (iterable): Échantillon de données.
+        data (Iterable[float]): Échantillon de nombres réels.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: Moitié de la range de *data*
+        float: Moitié de la range de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    data_sorted : list = sorted(data)
-    return (data_sorted[-1] + data_sorted[0]) / 2
+    return (max(data) + min(data)) / 2
 
-def cv(data, method : str = 'sample') -> float:
+def cv(data: Iterable[float], method: str = 'sample') -> float:
     """Renvoie le coefficient de variation de *data* pour une population ou un échantillon.
 
     Args:
-        data (iterable): Population ou échantillon de la population de données.
-        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+        data (Iterable[float]): Population ou échantillon de nombres réels.
+        method (str, optional): Type d'échantillon utilisé. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -560,24 +591,25 @@ def cv(data, method : str = 'sample') -> float:
     Returns:
         float: Coefficient de variation de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    m : float = mean(data)
+    m = mean(data)
     if m == 0.0 :
         raise StatisticsError("Attention le coefficient de variation est indéfini pour une moyenne nulle.")
-    if method == 'sample':      #Correction de Bessel
+    if method == 'sample':
         return stdev(data) / m
     if method == 'population':
-        return pstdev(data) / m  
+        return pstdev(data) / m
     raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
 
-def z_score(data, method : str = 'sample') -> list[float]:
-    """Renvoie *data* sous forme d'une liste standardisée. 
+def z_score(data: Iterable[float], method: str = 'sample') -> List[float]:
+    """Renvoie *data* sous forme d'une liste standardisée.
 
     Args:
-        data (iterable): Population ou échantillon de la population de données.
-        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+        data (Iterable[float]): Population ou échantillon de nombres réels.
+        method (str, optional): Type d'échantillon utilisé. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -585,35 +617,31 @@ def z_score(data, method : str = 'sample') -> list[float]:
         StatisticsError: Lorsque l'écart-type est nul.
 
     Returns:
-        list[float]: *data* standardisé.
+        List[float]: *data* standardisé.
     """
-    n : int = len(data)
-    if n == 0:
+    data = list(data) if not isinstance(data, list) else data
+    if not data:
         raise StatisticsError("Attention entrée vide")
-    somme_std = 0.0
-    somme_carre = 0.0
-    for x in data:
-        somme_std += x
-        somme_carre += x * x
-    m : float = somme_std / n
+
+    m = mean(data)
     if method == 'population':
-        var : float = somme_carre / n - m * m
-        sd : float = sqrt(max(0.0, var))
-    elif method == 'sample':       #Correction de Bessel
-        var : float = (somme_carre - m * m * n) / (n - 1)
-        sd : float = sqrt(max(0.0, var))   
+        sd = pstdev(data, mu=m)
+    elif method == 'sample':
+        sd = stdev(data, xbar=m)
     else:
         raise StatisticsError("Attention type non valide, method doit être 'sample' ou 'population'")
+
     if sd == 0.0:
         raise StatisticsError("Attention la variable est constante")
+
     return [(x - m) / sd for x in data]
 
-def skewness(data, method : str = 'sample') -> float:
+def skewness(data: Iterable[float], method: str = 'sample') -> float:
     """Renvoie le coefficient d'asymétrie (skewness) de *data*.
 
     Args:
-        data (iterable): Échantillon ou population de données.
-        method (str, optional): 'population' pour le coefficient brut g1, 'sample' pour la version corrigée G1 (correction de Fisher-Pearson). Defaults to 'sample'.
+        data (Iterable[float]): Échantillon ou population de nombres réels.
+        method (str, optional): 'population' pour le coefficient brut g1, 'sample' pour la version corrigée G1. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -624,15 +652,16 @@ def skewness(data, method : str = 'sample') -> float:
     Returns:
         float: Coefficient d'asymétrie de *data*.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    m : float = mean(data)
-    m2 : float = sum((x - m) ** 2 for x in data) / n
-    m3 : float = sum((x - m) ** 3 for x in data) / n
+    m = mean(data)
+    m2 = sum((x - m) ** 2 for x in data) / n
+    m3 = sum((x - m) ** 3 for x in data) / n
     if m2 == 0.0:
         raise StatisticsError("Attention écart-type nul")
-    g1 : float = m3 / (m2 ** 1.5)
+    g1 = m3 / (m2 ** 1.5)
     if method == 'population':
         return g1
     elif method == 'sample':
@@ -642,12 +671,12 @@ def skewness(data, method : str = 'sample') -> float:
     else:
         raise StatisticsError("Attention method non valide, method doit être 'sample' ou 'population'")
 
-def kurtosis(data, method : str = 'sample') -> float:
+def kurtosis(data: Iterable[float], method: str = 'sample') -> float:
     """Renvoie le coefficient d'aplatissement (excess kurtosis) de *data*.
 
     Args:
-        data (iterable): Échantillon ou population de données.
-        method (str, optional): 'population' pour le coefficient brut g2, 'sample' pour la version corrigée G2 (correction de Fisher-Pearson). Defaults to 'sample'.
+        data (Iterable[float]): Échantillon ou population de nombres réels.
+        method (str, optional): 'population' pour le coefficient brut g2, 'sample' pour la version corrigée G2. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -658,15 +687,16 @@ def kurtosis(data, method : str = 'sample') -> float:
     Returns:
         float: Coefficient d'aplatissement (excess kurtosis) de *data*, 0 pour une loi normale.
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    m : float = mean(data)
-    m2 : float = sum((x - m) ** 2 for x in data) / n
-    m4 : float = sum((x - m) ** 4 for x in data) / n
+    m = mean(data)
+    m2 = sum((x - m) ** 2 for x in data) / n
+    m4 = sum((x - m) ** 4 for x in data) / n
     if m2 == 0.0:
         raise StatisticsError("Attention écart-type nul")
-    g2 : float = m4 / (m2 ** 2) - 3
+    g2 = m4 / (m2 ** 2) - 3
     if method == 'population':
         return g2
     elif method == 'sample':
@@ -675,16 +705,16 @@ def kurtosis(data, method : str = 'sample') -> float:
         return ((n - 1) / ((n - 2) * (n - 3))) * ((n + 1) * g2 + 6)
     else:
         raise StatisticsError("Attention method non valide, method doit être 'sample' ou 'population'")
-    
+
 #=== Entre deux entrées ===
 
-def covariance(x, y, method : str = 'sample') -> float:
+def covariance(x: Iterable[float], y: Iterable[float], method: str = 'sample') -> float:
     """Renvoie la covariance entre les deux échantillons *x* et *y*.
 
     Args:
-        x (iterable): Premier échantillon de données.
-        y (iterable): Deuxième échantillon de données.
-        method (str, optional): Type de d'échantillon utilisé. Defaults to 'sample'.
+        x (Iterable[float]): Premier échantillon de nombres réels.
+        y (Iterable[float]): Deuxième échantillon de nombres réels.
+        method (str, optional): Type d'échantillon utilisé. Defaults to 'sample'.
 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
@@ -694,28 +724,30 @@ def covariance(x, y, method : str = 'sample') -> float:
     Returns:
         float: Covariance entre *x* et *y*.
     """
-    n : int = len(x)
-    m : int = len(y)
+    x = list(x) if not isinstance(x, list) else x
+    y = list(y) if not isinstance(y, list) else y
+    n = len(x)
+    m = len(y)
     if n < 2 or m < 2 :
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if n != m :
         raise StatisticsError("Attention entrées avec des dimensions différentes")
-    xbar : float = mean(x)
-    ybar : float = mean(y)
-    if method == 'sample':    #Correction de Bessel
+    xbar = mean(x)
+    ybar = mean(y)
+    if method == 'sample':
         return sum((x[i] - xbar) * (y[i] - ybar) for i in range(n)) / (n - 1)
     elif method == 'population':
         return sum((x[i] - xbar) * (y[i] - ybar) for i in range(n)) / n
     else :
         raise StatisticsError("Attention methode non valide, method doit être 'sample' ou 'population'")
 
-def correlation(x, y, method : str = 'linear') -> float:
+def correlation(x: Iterable[float], y: Iterable[float], method: str = 'linear') -> float:
     """Renvoie la covariance de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
 
     Args:
-        x (iterable): Premier échantillon de données.
-        y (iterable): Deuxième échantillon de données.
-        method (str, optional): Represente le type de corrélation utilisée 'linear' -> Pearson, 'ranked' -> Spearman. Defaults to 'linear'.
+        x (Iterable[float]): Premier échantillon de nombres réels.
+        y (Iterable[float]): Deuxième échantillon de nombres réels.
+        method (str, optional): Représente le type de corrélation utilisée 'linear' -> Pearson, 'ranked' -> Spearman. Defaults to 'linear'.
 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
@@ -726,45 +758,47 @@ def correlation(x, y, method : str = 'linear') -> float:
     Returns:
         float: Correlation de Pearson ou de Spearman de *x* et *y*.
     """
-    n : int = len(x)
-    m : int = len(y)
+    x = list(x) if not isinstance(x, list) else x
+    y = list(y) if not isinstance(y, list) else y
+    n = len(x)
+    m = len(y)
     if n < 2 or m < 2 :
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if n != m :
         raise StatisticsError("Attention entrées avec des dimensions différentes")
-    if method == 'linear':      #Corrélation de Pearson
-        std_x : float = stdev(x)
-        std_y : float = stdev(y)
+    if method == 'linear':
+        std_x = stdev(x)
+        std_y = stdev(y)
         if std_x == 0.0 or std_y == 0.0 :
             raise StatisticsError("Attention une variable est constante")
         return covariance(x,y) / (std_x * std_y)
-    elif method == 'ranked':     #Corrélation de Spearman
-        def rankdata(data) -> list:
-            p : int = len(data)
-            sorted_data : list = sorted(enumerate(data), key = lambda x: x[1])
-            ranks : list = [0] * p
-            i : int = 0
+    elif method == 'ranked':
+        def rankdata(data: List[float]) -> List[float]:
+            p = len(data)
+            sorted_data = sorted(enumerate(data), key = lambda x: x[1])
+            ranks = [0.0] * p
+            i = 0
             while i < p:
-                j : int = i
+                j = i
                 while j < p - 1 and sorted_data[j][1] == sorted_data[j + 1][1]:
                     j += 1
-                avg_rank : float = (i + j + 2) / 2.0
+                avg_rank = (i + j + 2) / 2.0
                 for k in range(i, j + 1):
                     ranks[sorted_data[k][0]] = avg_rank
                 i = j + 1
             return ranks
-        ranks_x  : list = rankdata(x)
-        ranks_y  : list = rankdata(y)
+        ranks_x  = rankdata(x)
+        ranks_y  = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
     else:
         raise StatisticsError("Attention methode non valide, method doit être 'linear' ou 'ranked'")
 
-def kendall_tau(x, y, method : str = 'type_a') -> float:
+def kendall_tau(x: Iterable[float], y: Iterable[float], method: str = 'type_a') -> float:
     """Renvoie le Tau-a ou Tau-b de Kendall de deux échantillons *x* et *y*.
 
     Args:
-        x (iterable):  Premier échantillon de données.
-        y (iterable): Deuxième échantillon de données.
+        x (Iterable[float]): Premier échantillon de nombres réels.
+        y (Iterable[float]): Deuxième échantillon de nombres réels.
         method (str, optional): Type du Tau de Kendall. Defaults to 'type_a'.
 
     Raises:
@@ -776,93 +810,96 @@ def kendall_tau(x, y, method : str = 'type_a') -> float:
     Returns:
         float: Tau-b de Kendall de *x* et *y*.
     """
-    n : int = len(x)
+    x = list(x) if not isinstance(x, list) else x
+    y = list(y) if not isinstance(y, list) else y
+    n = len(x)
     if n != len(y):
         raise StatisticsError("Attention entrées avec des dimensions différentes")
     if n < 2:
         raise StatisticsError("Attention taille de l'entrée trop petite")
-    concordant : int = 0
-    discordant : int = 0
+    concordant = 0
+    discordant = 0
     if method == 'type_a':
         for i in range(n - 1):
             for j in range(i + 1,n):
                 dx = x[i] - x[j]
                 dy = y[i] - y[j]
-                if dx == 0 or dy == 0:
+                if dx == 0.0 or dy == 0.0:
                     continue
-                elif dx * dy > 0:
+                elif dx * dy > 0.0:
                     concordant += 1
                 else:
                     discordant += 1
         return 2 * (concordant - discordant) / (n * (n -1))
-    elif method == 'type_b': 
-        ties_x : int = 0
-        ties_y : int = 0
+    elif method == 'type_b':
+        ties_x = 0
+        ties_y = 0
         for i in range(n - 1):
             for j in range(i + 1, n):
                 dx = x[i] - x[j]
                 dy = y[i] - y[j]
-                if dx == 0 and dy == 0:
-                    # paire liée dans les deux variables
+                if dx == 0.0 and dy == 0.0:
                     continue
-                elif dx == 0:
+                elif dx == 0.0:
                     ties_x += 1
-                elif dy == 0:
+                elif dy == 0.0:
                     ties_y += 1
-                elif dx * dy > 0:
+                elif dx * dy > 0.0:
                     concordant += 1
                 else:
                     discordant += 1
-        denom : float = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
+        denom = sqrt((concordant + discordant + ties_x) * (concordant + discordant + ties_y))
         if denom == 0.0:
             raise StatisticsError("Attention toutes les valeurs sont liées.")
         return (concordant - discordant) / denom
     else:
         raise StatisticsError("Attention methode non valide, method doit être 'type_a' ou 'type_b'")
 
-def linear_regression(x, y, proportional : bool = False) -> tuple[float, float]:
-    """Renvoie la pente et l'intersection à zéro de la régréssion linéaire de *x* et *y*.
+def linear_regression(x: Iterable[float], y: Iterable[float], proportional: bool = False) -> Tuple[float, float]:
+    """Renvoie la pente et l'intersection à zéro de la régression linéaire de *x* et *y*.
     Soit a et b dans l'équation y = a * x + b .
 
     Args:
-        x (iterable): Premier échantillon de données.
-        y (iterable): Deuxième échantillon de données.
+        x (Iterable[float]): Premier échantillon de nombres réels.
+        y (Iterable[float]): Deuxième échantillon de nombres réels.
         proportional (bool, optional): True si *x* et *y* sont proportionnels, False si non ou si on ne sait pas. Defaults to False.
 
     Raises:
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
-        StatisticsError: Lorsque la taille des échatillons n'est pas assez grande.
+        StatisticsError: Lorsque la taille des échantillons n'est pas assez grande.
         StatisticsError: Lorsque *x* est constant, sa variance est nulle.
         StatisticsError: Lorsque *x* est un échantillon de zéro.
 
     Returns:
-        float,float: Pente et intersection à zéro de la régression linéaire.
+        Tuple[float, float]: Pente et intersection à zéro de la régression linéaire.
     """
-    n : int = len(x)
+    x = list(x) if not isinstance(x, list) else x
+    y = list(y) if not isinstance(y, list) else y
+    n = len(x)
     if n != len(y):
         raise StatisticsError("Attention aux dimensions")
     if n < 2:
         raise StatisticsError("Attention taille de l'entrée trop petite")
     if not proportional:
-        var_x : float = variance(x)
+        var_x = variance(x)
         if var_x == 0.0:
             raise StatisticsError("Attention x est constant")
-        slope : float = covariance(x,y) / var_x
-        intercept : float = mean(y) - slope * mean(x)
+        slope = covariance(x,y) / var_x
+        intercept = mean(y) - slope * mean(x)
         return slope, intercept
-    denom : float = sum(xi * xi for xi in x)
+    denom = sum(xi * xi for xi in x)
     if denom == 0.0 :
         raise StatisticsError("Attention tous les x sont égaux à zéro")
     slope = sum(xi * yi for xi, yi in zip(x, y)) / denom
     intercept = 0.0
     return slope, intercept
 
-def r_squared(x, y, proportional : bool = False) -> float:
+def r_squared(x: Iterable[float], y: Iterable[float], proportional: bool = False) -> float:
     """Renvoie le coefficient de détermination R² de la régression linéaire de *y* sur *x*.
 
     Args:
-        x (iterable): Variable explicative.
-        y (iterable): Variable expliquée.
+        x (Iterable[float]): Variable explicative (nombre réel).
+        y (Iterable[float]): Variable expliquée (nombre réel).
         proportional (bool, optional): True si la régression est forcée à passer par zéro. Defaults to False.
 
     Raises:
@@ -873,57 +910,60 @@ def r_squared(x, y, proportional : bool = False) -> float:
     Returns:
         float: Coefficient de détermination R².
     """
-    n : int = len(x)
+    x = list(x) if not isinstance(x, list) else x
+    y = list(y) if not isinstance(y, list) else y
+    n = len(x)
     if n != len(y):
         raise StatisticsError("Attention aux dimensions")
     if n < 2:
         raise StatisticsError("Attention taille de l'entrée trop petite")
     slope, intercept = linear_regression(x, y, proportional=proportional)
-    ybar : float = mean(y)
-    ss_tot : float = sum((yi - ybar) ** 2 for yi in y)
+    ybar = mean(y)
+    ss_tot = sum((yi - ybar) ** 2 for yi in y)
     if ss_tot == 0.0:
         raise StatisticsError("Attention y est constant")
-    ss_res : float = sum((yi - (slope * xi + intercept)) ** 2 for xi, yi in zip(x, y))
+    ss_res = sum((yi - (slope * xi + intercept)) ** 2 for xi, yi in zip(x, y))
     return 1 - ss_res / ss_tot
 
 #=== Quantiles ===
 
-def quantiles(data, n : int = 4, method : str = 'exclusive') -> list:
-    """Divise *data* en *n* groupes de même probabilité et renvoie la liste des *n-1* bornes. 
+def quantiles(data: Iterable[float], n: int = 4, method: str = 'exclusive') -> List[float]:
+    """Divise *data* en *n* groupes de même probabilité et renvoie la liste des *n-1* bornes.
 
     Args:
-        data (iterable): Échantillon de donnés.
-        n (int, optional): Nombre de groupe en lesquels on veut diviser *data*. Defaults to 4.
+        data (Iterable[float]): Échantillon de nombres réels.
+        n (int, optional): Nombre de groupes en lesquels on veut diviser *data*. Defaults to 4.
         method (str, optional): Méthode qui va être utilisée pour diviser *data*. Defaults to 'exclusive'.
 
     Raises:
-        StatisticsError: Lorsque la taille de l'échatillon *data* n'est pas assez grande.
+        StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande.
         StatisticsError: Lorsque n n'est pas un entier non nul.
-        StatisticsError: Lorsque la taille de l'échatillon *data* n'est pas assez grande par rapport à *n*.
+        StatisticsError: Lorsque la taille de l'échantillon *data* n'est pas assez grande par rapport à *n*.
         StatisticsError: Lorsque *method* n'est pas valide.
 
     Returns:
-        list: Liste des bornes des *n* groupes.
+        List[float]: Liste des bornes des *n* groupes.
     """
-    N  : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    N  = len(data)
     if N < 2 :
         raise StatisticsError("Attention taille de l'entrée trop petite")
-    if n < 1 or type(n) != int:
-        raise StatisticsError("n doit être un entier non nul positif")
+    if n < 1 or not isinstance(n, int):
+        raise StatisticsError("Attention n doit être un entier non nul positif")
     if n > N :
         raise StatisticsError("Attention taille de l'entrée trop petite par rapport à n ")
-    L : list = sorted(data)
-    result : list = []
+    L = sorted(data)
+    result =[]
     for i in range(1,n):
-        p : float = i/n
+        p = i / n
         if method == 'inclusive':
-            r : float = p * (N - 1) + 1
+            r = p * (N - 1) + 1
         elif method == 'exclusive':
-            r : float = p * (N + 1)
+            r = p * (N + 1)
         else:
             raise StatisticsError("Attention method non valide, method doit être 'inclusive' ou 'exclusive'")
-        k : int = int(r)        # partie entière
-        d : float = r - k       # partie décimale
+        k = int(r)
+        d = r - k
         if k <= 0:
             q = L[0]
         elif k >= N:
@@ -935,14 +975,14 @@ def quantiles(data, n : int = 4, method : str = 'exclusive') -> list:
 
 #=== Kernel ===
 
-def kde(data, h, kernel : str = 'normal', cumulative : bool = False):
+def kde(data: Iterable[float], h: float, kernel: str = 'normal', cumulative: bool = False):
     """Renvoie une fonction de distribution continue ou une fonction de distribution cumulative (CDF) depuis des données discrètes.
 
     Args:
-        data (iterable): Échantillon de donnés.
-        h (int or float): Bande-passante controlant la régularité de la fonction renvoyée.
+        data (Iterable[float]): Échantillon de nombres réels.
+        h (float): Bande-passante contrôlant la régularité de la fonction renvoyée.
         kernel (str, optional): Nature du noyau qui va être utilisé. Defaults to 'normal'.
-        cumulative (bool, optional): _description_. Defaults to False.
+        cumulative (bool, optional): Si True, renvoie la CDF. Defaults to False.
 
     Raises:
         StatisticsError: Lorsque *data* est vide.
@@ -950,179 +990,180 @@ def kde(data, h, kernel : str = 'normal', cumulative : bool = False):
         StatisticsError: Lorsque *kernel* n'est pas valide.
 
     Returns:
-        function: Fonction de distribution ou fonction de distribution cumulative (CDF).
+        Callable: Fonction de distribution ou fonction de distribution cumulative (CDF).
     """
-    n : int = len(data)
+    data = list(data) if not isinstance(data, list) else data
+    n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
     if h <= 0:
-        raise StatisticsError("h doit être strictement positif")
-    if kernel == 'normal':          #Kernel (noyau) normal ou gaussien
+        raise StatisticsError("Attention h doit être strictement positif")
+    if kernel == 'normal':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = exp(-0.5 * u * u) / sqrt(2 * pi)
+                u = (x - xi) / h
+                k = exp(-0.5 * u * u) / sqrt(2 * pi)
                 total += k
             return total / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 0.5 * (1.0 + erf(u / sqrt(2.0)))
+                u = (x - xi) / h
+                k = 0.5 * (1.0 + erf(u / sqrt(2.0)))
                 total += k
             return total / n
-    elif kernel == 'logistic':      #Kernel (noyau) logistique
+    elif kernel == 'logistic':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                t : float = exp(-u)
-                k : float = t / ((1 + t) ** 2)
+                u = (x - xi) / h
+                t = exp(-u)
+                k = t / ((1 + t) ** 2)
                 total += k
             return total / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 1.0 / (1.0 + exp(-u))
+                u = (x - xi) / h
+                k = 1.0 / (1.0 + exp(-u))
                 total += k
             return total / n
-    elif kernel == 'sigmoid':       #Kernel (noyau) sigmoid
+    elif kernel == 'sigmoid':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 1.0 / (pi * cosh(u))
+                u = (x - xi) / h
+                k = 1.0 / (pi * cosh(u))
                 total += k
             return total / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 0.5 + atan(sinh(u)) / pi
+                u = (x - xi) / h
+                k = 0.5 + atan(sinh(u)) / pi
                 total += k
             return total / n
-    elif kernel == 'rectangular':   #Kernel (noyau) rectangulaire ou uniforme
+    elif kernel == 'rectangular':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 0.5 if abs(u) <= 1.0 else 0.0
+                u = (x - xi) / h
+                k = 0.5 if abs(u) <= 1.0 else 0.0
                 total += k
             return total / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u = (x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 else :
-                    k : float = (u + 1) / 2
+                    k =(u + 1) / 2
                 total += k
             return total / n
-    elif kernel == 'triangular':    #Kernel (noyau) triangulaire
+    elif kernel == 'triangular':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = 1.0 - abs(u) if abs(u) <= 1.0 else 0.0
+                u = (x - xi) / h
+                k = 1.0 - abs(u) if abs(u) <= 1.0 else 0.0
                 total += k
             return total / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u = (x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 elif u < 0.0:
-                    k : float = 0.5 * (u + 1) * (u + 1)
+                    k = 0.5 * (u + 1) * (u + 1)
                 else :
-                    k : float = 1.0 - 0.5 * (1 - u) * (1 - u)
+                    k = 1.0 - 0.5 * (1 - u) * (1 - u)
                 total += k
             return total / n
-    elif kernel == 'parabolic':     #Kernel (noyau) parabolique ou Epanechnikov
+    elif kernel == 'parabolic':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = (1.0 - u * u) if abs(u) <= 1.0 else 0.0
+                u = (x - xi) / h
+                k = (1.0 - u * u) if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * 0.75) / (n * h)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u =(x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 else :
-                    k : float = 0.5 + 0.75 * u - 0.25 * (u ** 3)
+                    k = 0.5 + 0.75 * u - 0.25 * (u ** 3)
                 total += k
             return total / n
-    elif kernel == 'quartic':       #Kernel (noyau) quadratique
+    elif kernel == 'quartic':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = (1.0 - u * u) ** 2 if abs(u) <= 1 else 0.0
+                u = (x - xi) / h
+                k = (1.0 - u * u) ** 2 if abs(u) <= 1 else 0.0
                 total += k
             return (total * 15) / (n * h * 16)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u = (x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 else :
-                    k : float = 0.5 + (15/16) * u - (5/8) * u**3 + (3/16) * u**5
+                    k = 0.5 + (15/16) * u - (5/8) * u**3 + (3/16) * u**5
                 total += k
             return total / n
-    elif kernel == 'triweight':     #Kernel (noyau) cubique
+    elif kernel == 'triweight':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = (1.0 - u * u) ** 3 if abs(u) <= 1.0 else 0.0
+                u = (x - xi) / h
+                k = (1.0 - u * u) ** 3 if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * 35) / (n * h * 32)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u = (x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 else :
-                    k : float =  0.5 + (35/32) * u - (35/32) * u**3 + (21/32) * u**5 - (5/32) * u**7
+                    k = 0.5 + (35/32) * u - (35/32) * u**3 + (21/32) * u**5 - (5/32) * u**7
                 total += k
             return total / n
-    elif kernel == 'cosine':        #Kernel (noyau) sinusoïdal
+    elif kernel == 'cosine':
         def density(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
-                k : float = cos( (pi * u) / 2 ) if abs(u) <= 1.0 else 0.0
+                u = (x - xi) / h
+                k = cos( (pi * u) / 2 ) if abs(u) <= 1.0 else 0.0
                 total += k
             return (total * pi) / (n * h * 4)
         def cdf(x):
-            total : float = 0.0
+            total = 0.0
             for xi in data:
-                u : float = (x - xi) / h
+                u = (x - xi) / h
                 if u < -1.0:
-                    k : float = 0.0
+                    k = 0.0
                 elif u > 1.0:
-                    k : float = 1.0
+                    k = 1.0
                 else :
-                    k : float =  0.5 * (1.0 + sin(pi * u / 2))
+                    k = 0.5 * (1.0 + sin(pi * u / 2))
                 total += k
             return total / n
     else:
