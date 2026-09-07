@@ -1,4 +1,4 @@
-# 🧩 MyModules
+# MyModules
 
 Réimplémentation from scratch de plusieurs modules de la bibliothèque standard Python, avec un objectif d'apprentissage de l'algorithmique, des mathématiques et du fonctionnement interne des bibliothèques Python.
 
@@ -7,7 +7,7 @@ Réimplémentation from scratch de plusieurs modules de la bibliothèque standar
 
 ---
 
-## 📖 Présentation
+## Présentation
 
 **MyModules** est un projet personnel dans lequel je réimplémente progressivement certaines fonctionnalités de la bibliothèque standard Python.
 
@@ -24,9 +24,9 @@ Le projet me permet notamment de travailler sur :
 
 ---
 
-## 📦 Modules
+## Modules
 
-### 📊 `my_statistics`
+### `my_statistics`
 
 Réimplémentation progressive de fonctionnalités du module [`statistics`](https://docs.python.org/3/library/statistics.html).
 
@@ -62,7 +62,7 @@ Le module est toujours en développement et de nouvelles fonctions sont réguli�
 
 ---
 
-### 🎲 `my_random`
+### `my_random`
 
 Réimplémentation progressive de fonctionnalités du module [`random`](https://docs.python.org/3/library/random.html).
 
@@ -107,7 +107,7 @@ Le module contient également plusieurs générateurs de lois probabilistes, not
 
 ---
 
-## 🚀 Utilisation
+## Utilisation
 
 Clone le dépôt :
 
@@ -135,7 +135,7 @@ for _ in range(5):
 
 ---
 
-## 🧪 Exemple : moyenne tronquée
+## Exemple : moyenne tronquée
 
 ```python
 import my_statistics as statistics
@@ -150,7 +150,7 @@ La moyenne tronquée permet de réduire l'influence des valeurs extrêmes en ret
 
 ---
 
-## 📈 Exemple : génération aléatoire
+## Exemple : génération aléatoire
 
 ```python
 import my_random as random
@@ -164,32 +164,6 @@ print(max(values))
 ```
 
 Le générateur peut ensuite être utilisé comme base pour construire différentes distributions probabilistes.
-
----
-
-## 🎯 Objectifs
-
-### Actuellement
-
-* [x] Réimplémentation de nombreuses fonctions statistiques
-* [x] Générateur pseudo-aléatoire basé sur un LCG
-* [x] Fonctions de manipulation des séquences
-* [x] Plusieurs distributions probabilistes
-* [x] Estimation de densité par noyau
-* [ ] Amélioration des tests
-* [ ] Comparaison systématique avec la bibliothèque standard Python
-* [ ] Amélioration des performances
-* [ ] Documentation plus complète
-
-### À venir
-
-* `my_math`
-* davantage de distributions probabilistes
-* davantage de méthodes statistiques
-* tests automatisés
-* benchmarks
-* visualisations et exemples
-* meilleure compatibilité avec l'API de Python
 
 ---
 
@@ -222,13 +196,13 @@ Les modules développés ici ne sont pas destinés à remplacer les implémentat
 
 ```text
 statistics
-██████████████████░░  En développement
+[##################..] Bientôt fini
 
 random
-████████████████░░░░  En développement
+[#################...]  Bientôt fini
 
 math
-██░░░░░░░░░░░░░░░░░░  À venir
+[###.................]  À venir
 ```
 
 ---
@@ -250,6 +224,18 @@ Voir le fichier [`LICENSE`](LICENSE) pour consulter le texte complet de la licen
 Projet développé par **Osona55** dans le cadre d'un travail personnel autour de Python, de l'algorithmique et des mathématiques.
 
 ⭐ Si le projet t'intéresse, n'hésite pas à explorer le code, ouvrir une issue ou proposer une amélioration.
+
+---
+
+## À propos
+
+`MyModules` est un projet pédagogique visant à réimplémenter progressivement certaines fonctionnalités de modules de la bibliothèque standard Python.
+
+Pour `my_random`, l'API et le comportement attendu des fonctions ont été étudiés à partir de la documentation officielle de Python, complétés par des tests et des expérimentations en Python.
+
+Les fonctions ont ensuite été réimplémentées indépendamment, avec mes propres choix d'algorithmes et d'implémentation.
+
+Le projet ne reprend pas le code source de la bibliothèque standard Python et n'est pas affilié au projet Python ni à la Python Software Foundation.
 
 ---
 
