@@ -3,7 +3,8 @@
 
 #=== Importation des modules ===
 import time
-from math import pi, cos, log, exp, acos, sqrt
+from typing import Any, Optional, Sequence
+from math import pi, cos, tan, log, exp, acos, sqrt
 
 #=== Error ===
 
@@ -21,7 +22,7 @@ C = 1013904223
 # état initial
 state = int(time.time())
 
-def seed(a : int = None):
+def seed(a: Optional[int] = None) -> None:
     """Initialise le générateur LCG.
 
     Args:
@@ -76,7 +77,7 @@ def random() -> float:
 
 #=== Fonctions pour des entiers ===
 
-def randrange(start : int , stop : int = None, step : int = 1) -> int:
+def randrange(start: int, stop: Optional[int] = None, step: int = 1) -> int:
     """Renvoie un entier aléatoirement uniforme dans range(start, stop, step).
     Aussi randrange(10) renvoie randrange(0,10,1).
 
@@ -134,7 +135,7 @@ def randint(a : int, b : int) -> int:
 
 #=== Fonctions pour des séquences ===
 
-def choice(L):
+def choice(L: Sequence[Any]) -> Any:
     """Renvoie un élément aléatoirement uniforme dans *L*.
 
     Args:
@@ -151,7 +152,7 @@ def choice(L):
         raise RandomError("Attention l'argument *L* est vide")
     return L[randrange(n)]
 
-def shuffle(L) -> list:
+def shuffle(L: Sequence[Any]) -> list:
     """Renvoie une liste copie de *L* mélangée par le mélange de Fisher-Yates.
 
     Args:
@@ -169,7 +170,7 @@ def shuffle(L) -> list:
         liste[j],liste[i] = liste[i],liste[j]
     return liste
 
-def sample(L, n : int) -> list:
+def sample(L: Sequence[Any], n: int) -> list:
     """Renvoie une liste de *n* éléments aléatoires de *L*.
 
     Args:
@@ -185,11 +186,25 @@ def sample(L, n : int) -> list:
     """
     if not isinstance(n, int):
         raise RandomError("Attention *n* n'est pas un entier")
-    if len(L) == 0:
+    N = len(L)
+    if N == 0:
         return []
-    if n <= 0 or n > len(L):
-        raise RandomError("Attention n doit être positif strictement et inférieur ou égal à la taille de *L*")
-    return shuffle(L)[:n]
+    if n <= 0 or n > N:
+        raise RandomError("Attention *n* doit être positif strictement et inférieur ou égal à la taille de *L*")
+
+    if n > N // 2:
+        # Pour n grand, on utilise un mélange partiel de Fisher-Yates (O(N) espace, O(n) temps)
+        res = list(L)
+        for i in range(n):
+            j = randint(i, N - 1)
+            res[i], res[j] = res[j], res[i]
+        return res[:n]
+    else:
+        # Pour n petit, on tire des indices uniques (O(n) espace, O(n) temps)
+        indices = set()
+        while len(indices) < n:
+            indices.add(randrange(N))
+        return [L[i] for i in indices]
 
 #=== Octets et Bits ===
 
@@ -221,7 +236,7 @@ def randbytes(n : int) -> bytes:
     Returns:
         bytes: *n* octets aléatoires.
     """
-    if type(n) != int or n < 0:
+    if not isinstance(n, int) or n < 0:
         raise RandomError("Attention *n* doit être un entier positif")
     return getrandbits(n * 8).to_bytes(n, "little")
 
@@ -258,7 +273,7 @@ def binomialvariate(n : int = 1, p : float = 0.5) -> int:
     Returns:
         int: Résultat aléatoire d'une succession de *n* épreuves indépendantes de Bernoulli de paramètre *p*.
     """
-    if type(n) != int or n < 0:
+    if not isinstance(n, int) or n < 0:
         raise RandomError("Attention *n* n'est pas un entier positif")
     if n == 0:
         return 0
@@ -266,7 +281,34 @@ def binomialvariate(n : int = 1, p : float = 0.5) -> int:
         raise RandomError("Attention *p* doit être compris entre 0 et 1")
     return sum(random() < p for _ in range(n))
 
-def triangular(low : float, high : float, mode : float = None) -> float:
+def negativebinomial(n : int, p : float) -> int:
+    """Génère un résultat aléatoire suivant une loi Binomiale Négative de paramètres *n* et *p*.
+   
+    Args:
+        n (int): Nombre de succès souhaités.
+        p (float): Probabilité de succès.
+
+    Raises:
+        RandomError: Lorsque *p* est inférieur ou égal à 0, ou strictement supérieur à 1.
+        RandomError: Lorsque *n* n'est pas un entier.
+
+    Returns:
+        int: Résultat aléatoire suivant une loi Binomiale Négative de paramètres *n* et *p*.
+    """
+    if not (0 < p <= 1):
+        raise RandomError("Attention la probabilité *p* doit être comprise entre 0 et 1 (exclus 0)")
+    if n <= 0:
+        raise RandomError("Attention le nombre de succès *n* doit être un entier positif")
+    successes = 0
+    failures = 0
+    while successes < n:
+        if random() < p:
+              successes += 1
+        else:
+            failures += 1
+    return failures
+
+def triangular(low: float, high: float, mode: Optional[float] = None) -> float:
     """Génère un résultat aléatoire suivant une loi Triangulaire entre *low* et *high*  ainsi que de sommet *mode*.
 
     Args:
@@ -298,7 +340,7 @@ def geometric(p : float) -> int:
     """Génère un résultat aléatoire suivant une loi Géométrique de paramètre *p*.
 
     Args:
-        p (float): Paramètre de la loi Géométrique
+        p (float): Paramètre de la loi Géométrique.
 
     Raises:
         RandomError: Lorsque *p* est négatif ou supérieur ou égal à 1.
@@ -311,8 +353,55 @@ def geometric(p : float) -> int:
     u = random()
     return int(log(1-u) / log(1-p)) + 1
 
+def hypergeometric(n : int, p : int, N : int) -> int:
+    """Génère un résultat aléatoire suivant une loi Hypergéométrique de paramètres *n*,*p* et *N*.
+
+    Args:
+        n (int): Taille de l'échantillon.
+        p (int): Nombre de succès dans la population.
+        N (int): Taille totale de la population.
+
+    Raises:
+        RandomError: Lorsque *n* est supérieur à *N*.
+        RandomError: Lorsque *p* est supérieur à *N*.
+
+    Returns:
+        int: Résultat aléatoire suivant une loi Hypergéométrique de paramètres *n*,*p* et *N*.
+    """
+    if n > N:
+        raise RandomError("Attention la taille de l'échantillon *n* ne peut pas être supérieure à la population *N*")
+    if p > N:
+        raise RandomError("Attention le nombre de succès *p* ne peut pas être supérieur à la population *N*")
+    population = [1] * p + [0] * (N - p)
+    _sample = sample(population, n)
+    return sum(_sample)
+
+def poissonvariate(lmbda : float) -> int:
+    """Génère un résultat aléatoire suivant une loi de Poisson de paramètre *lmbda*.
+
+    Args:
+        lmbda (float): Taux moyen d'occurrence.
+
+    Raises:
+        RandomError: Lorsque *lmbda* est négatif ou nul.
+
+    Returns :
+        int: Résultat aléatoire suivant une loi de Poisson de paramètre *lmbda*.
+    """
+    if lmbda <= 0:
+        raise RandomError("Attention le paramètre *lmbda* doit être strictement positif")
+    L = exp(-lmbda)
+    k = 0
+    product = 1.0
+    while True:
+        k += 1
+        product *= random()
+        if product < L:
+            break
+    return k - 1
+
 def expovariate(lmbda : float = 1.0) -> float:
-    """Génère un résultat aléatoire suivant une loi Exponentielle de paramètres *lmbda*.
+    """Génère un résultat aléatoire suivant une loi Exponentielle de paramètre *lmbda*.
 
     Args:
         lmbda (float, optional): Paramètre de la loi Exponentielle. Defaults to 1.0.
@@ -376,6 +465,23 @@ def betavariate(alpha : float, beta : float) -> float:
         y = gammavariate(beta, 1.0)
     return x / (x + y)
 
+def chisquared(k : float) -> float:
+    """Génère un résultat aléatoire suivant une loi Khi-Deux de paramètre *k*, construite à partir d'une loi Gamma.
+    La loi Khi-deux(k) est un cas particulier de la loi Gamma(shape=k/2, scale=2).
+
+    Args:
+       k (float): Degrés de liberté.
+
+    Raises:
+        RandomError: Lorsque *k* est négatif ou nul.
+
+    Returns:
+        float: Résultat aléatoire suivant une loi Khi-Deux de paramètre *k*.
+    """
+    if k <= 0:
+        raise RandomError("Attention les degrés de liberté *k* doivent être strictement positifs")
+    return gammavariate(k / 2, 2)
+
 def gauss(mu : float = 0.0, sigma : float = 1.0) -> float:
     """Génère un résultat aléatoire suivant une loi Normale de paramètres *mu* et *sigma*.
     Utilise la transformation de Box-Muller (forme trigonométrique).
@@ -423,6 +529,44 @@ def normalvariate(mu : float = 0.0, sigma : float = 1.0) -> float:
         if x <= -log(u2):
             return mu + sigma * z
 
+def student_t_sample(k : float) -> float:
+    """ Génère un résultat aléatoire suivant une loi de Student de paramètre *k*.
+
+    Args:
+        k (float): Degrés de liberté.
+
+    Raises:
+        RandomError : Lorsque *k* est négatif ou nul.
+
+    Returns:
+        float: Résultat suivant une loi de Student de paramètre *k*.
+    """
+    if k <= 0:
+        raise RandomError("Attention les degrés de liberté *k* doivent être strictement positifs")
+    z = gauss(0, 1)
+    v = chisquared(k)
+    t = z / sqrt(v / k)
+    return t
+        
+def cauchyvariate(x0 : float, a : float) -> float:
+    """Génère un résultat aléatoire suivant une loi de Cauchy de paramètres *x0* et *a*.
+
+    Args:
+        x0 (float): Paramètre de position (médiane et mode).
+        a (float): Paramètre d'échelle (demi-largeur à mi-hauteur).
+    
+    Raises:
+        RandomError: Lorsque *a* est négatif ou nul.
+
+    Returns:
+        float: Résultat aléatoire suivant une loi de Cauchy de paramètres *x0* et *a*.
+    """
+    if a <= 0:
+        raise RandomError("Attention le paramètre d'échelle *a* doit être strictement positif")
+    u = random()
+    result = x0 + a * tan(pi * (u - 0.5))
+    return result
+
 def paretovariate(alpha : float) -> float:
     """Génère un résultat aléatoire suivant une distribution de Pareto de paramètre *alpha*.
 
@@ -455,7 +599,7 @@ def weibullvariate(alpha : float, beta : float) -> float:
     """
     if alpha <= 0.0 or beta <= 0.0:
         raise RandomError("Attention *alpha* et *beta* doivent être positifs")
-    u = 1.0 - random()   # évite log(0) si u=1 exactement
+    u = 1.0 - random()
     return beta * (-log(u)) ** (1.0 / alpha)
 
 def vonmisesvariate(mu : float, kappa : float) -> float:
