@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # @author : Osona
+# Copyright (c) 2026 Osona
+# Licensed under the MIT License.
 
 #=== Importation des modules ===
 from math import pi, exp, log, sqrt, cos, sin, cosh, sinh, erf, atan
@@ -113,28 +115,30 @@ def harmonic_mean(data: Iterable[float], weights: Union[Iterable[float], None] =
     if weights is None:
         somme = 0
         for x in data:
-            if x == 0:
-                return 0.0
             if x < 0:
                 raise StatisticsError("Attention valeur négative")
-            somme += 1/x
+            if x == 0:
+                return 0.0
+            somme += 1 / x
         return n / somme
     weights = list(weights) if not isinstance(weights, list) else weights
     m = len(weights)
     if n != m:
         raise StatisticsError("Attention entrées avec des dimensions différentes")
-    somme = 0
-    s_weights = 0
+    somme = 0.0
+    s_weights = 0.0
     for i in range(n):
         x = data[i]
         w = weights[i]
-        if x == 0:
+        if x == 0 and w == 0:
+            continue
+        elif x == 0 :   #and w != 0
             return 0.0
-        if w < 0:
+        elif w < 0:
             raise StatisticsError("Attention poids négatif")
         elif x < 0:
             raise StatisticsError("Attention valeur négative")
-        somme += (1/x)*w
+        somme += (1 / x) * w
         s_weights += w
     if s_weights == 0.0:
         raise StatisticsError("Attention tous les poids sont nuls")
@@ -359,7 +363,7 @@ def weighted_median(data: Iterable[float], weights: Iterable[float]) -> float:
     total = sum(weights)
     if total == 0:
         raise StatisticsError("Attention somme des poids nulle")
-    pairs = sorted(zip(data, weights), key = lambda p: p[0])
+    pairs = sorted(((x, w) for x, w in zip(data, weights) if w != 0), key=lambda p: p[0])
     cumul = 0.0
     half = total / 2
     for i, (x, w) in enumerate(pairs):
@@ -373,7 +377,7 @@ def weighted_median(data: Iterable[float], weights: Iterable[float]) -> float:
 #=== Mode ===
 
 def mode(data: Iterable[Any]) -> Any:
-    """Renvoie la valeur la plus représentée (la première apparue si il y en a plusieurs) dans l'échantillon *data*.
+    """Renvoie la valeur la plus représentée (la première apparue s'il y en a plusieurs) dans l'échantillon *data*.
 
     Args:
         data (Iterable[Any]): Échantillon dont on veut le mode.
@@ -425,7 +429,7 @@ def multimode(data: Iterable[Any]) -> List[Any]:
             L.append(a)
     return L
 
-#=== Mesures de dispertion ===
+#=== Mesures de dispersion ===
 
 def pvariance(data: Iterable[float], mu: Union[float, None] = None) -> float:
     """Renvoie la variance de la population *data*.
@@ -456,7 +460,7 @@ def variance(data: Iterable[float], xbar: Union[float, None] = None) -> float:
         xbar (float, optional): Moyenne de l'échantillon *data*. Defaults to None.
 
     Raises:
-        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque la taille de *data* est trop petite.
 
     Returns:
         float: Variance de l'échantillon de population *data*.
@@ -493,7 +497,7 @@ def stdev(data: Iterable[float], xbar: Union[float, None] = None) -> float:
         xbar (float, optional): Moyenne de l'échantillon *data*. Defaults to None.
 
     Raises:
-        StatisticsError: Lorsque *data* est vide.
+        StatisticsError: Lorsque la taille de *data* est trop petite.
 
     Returns:
         float: Écart-type de l'échantillon de population *data*.
@@ -502,7 +506,7 @@ def stdev(data: Iterable[float], xbar: Union[float, None] = None) -> float:
     return sqrt(variance(data, xbar))
 
 def mean_absolute_deviation(data: Iterable[float]) -> float:
-    """Renvoie la mean absolute value deviation (MAD) de *data*.
+    """Renvoie la mean absolute deviation (MAD) de *data*.
 
     Args:
         data (Iterable[float]): Échantillon de nombres réels.
@@ -511,7 +515,7 @@ def mean_absolute_deviation(data: Iterable[float]) -> float:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: Mean absolute value deviation de *data*.
+        float: Mean absolute deviation de *data*.
     """
     data = list(data) if not isinstance(data, list) else data
     n = len(data)
@@ -521,7 +525,7 @@ def mean_absolute_deviation(data: Iterable[float]) -> float:
     return sum(abs(x - m) for x in data) / n
 
 def median_absolute_deviation(data: Iterable[float]) -> float:
-    """Renvoie la median absolute value deviation (MAD) de *data*.
+    """Renvoie la median absolute deviation (MAD) de *data*.
 
     Args:
         data (Iterable[float]): Échantillon de nombres réels.
@@ -530,7 +534,7 @@ def median_absolute_deviation(data: Iterable[float]) -> float:
         StatisticsError: Lorsque *data* est vide.
 
     Returns:
-        float: Median absolute value deviation de *data*.
+        float: Median absolute deviation de *data*.
     """
     data = list(data) if not isinstance(data, list) else data
     n = len(data)
@@ -552,14 +556,14 @@ def range_(data: Iterable[float]) -> float:
     Returns:
         float: Range de *data*.
     """
-    data = list(data) if not isinstance(data, list) else data
+    data = sorted(list(data)) if not isinstance(data, list) else sorted(data)
     n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    return max(data) - min(data)
+    return data[0] - data[-1]
 
 def midrange(data: Iterable[float]) -> float:
-    """Renvoie la moitié de la range de *data*.
+    """Renvoie la moitié de l'étendue de *data*.
 
     Args:
         data (Iterable[float]): Échantillon de nombres réels.
@@ -570,11 +574,11 @@ def midrange(data: Iterable[float]) -> float:
     Returns:
         float: Moitié de la range de *data*.
     """
-    data = list(data) if not isinstance(data, list) else data
+    data = sorted(list(data)) if not isinstance(data, list) else sorted(data)
     n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    return (max(data) + min(data)) / 2
+    return (data[0] + data[-1]) / 2
 
 def cv(data: Iterable[float], method: str = 'sample') -> float:
     """Renvoie le coefficient de variation de *data* pour une population ou un échantillon.
@@ -742,7 +746,7 @@ def covariance(x: Iterable[float], y: Iterable[float], method: str = 'sample') -
         raise StatisticsError("Attention methode non valide, method doit être 'sample' ou 'population'")
 
 def correlation(x: Iterable[float], y: Iterable[float], method: str = 'linear') -> float:
-    """Renvoie la covariance de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
+    """Renvoie la corrélation de Pearson ou de Spearman entre les deux échantillons *x* et *y*.
 
     Args:
         x (Iterable[float]): Premier échantillon de nombres réels.
@@ -752,11 +756,11 @@ def correlation(x: Iterable[float], y: Iterable[float], method: str = 'linear') 
     Raises:
         StatisticsError: Lorsque les échantillons sont trop petits.
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
-        StatisticsError: Lorsque une des deux entrées est constante.
+        StatisticsError: Lorsqu'une des deux entrées est constante.
         StatisticsError: Lorsque *method* est non valide.
 
     Returns:
-        float: Correlation de Pearson ou de Spearman de *x* et *y*.
+        float: Corrélation de Pearson ou de Spearman de *x* et *y*.
     """
     x = list(x) if not isinstance(x, list) else x
     y = list(y) if not isinstance(y, list) else y
@@ -791,7 +795,7 @@ def correlation(x: Iterable[float], y: Iterable[float], method: str = 'linear') 
         ranks_y  = rankdata(y)
         return correlation(ranks_x, ranks_y, method = 'linear')
     else:
-        raise StatisticsError("Attention methode non valide, method doit être 'linear' ou 'ranked'")
+        raise StatisticsError("Attention méthode non valide, method doit être 'linear' ou 'ranked'")
 
 def kendall_tau(x: Iterable[float], y: Iterable[float], method: str = 'type_a') -> float:
     """Renvoie le Tau-a ou Tau-b de Kendall de deux échantillons *x* et *y*.
@@ -808,7 +812,7 @@ def kendall_tau(x: Iterable[float], y: Iterable[float], method: str = 'type_a') 
         StatisticsError: Lorsque *method* est non valide.
 
     Returns:
-        float: Tau-b de Kendall de *x* et *y*.
+        float: Tau-a ou Tau-b de Kendall de *x* et *y*.
     """
     x = list(x) if not isinstance(x, list) else x
     y = list(y) if not isinstance(y, list) else y
@@ -830,6 +834,8 @@ def kendall_tau(x: Iterable[float], y: Iterable[float], method: str = 'type_a') 
                     concordant += 1
                 else:
                     discordant += 1
+        if concordant + discordant == 0:
+            raise StatisticsError("Attention toutes les valeurs sont liées.")
         return 2 * (concordant - discordant) / (n * (n -1))
     elif method == 'type_b':
         ties_x = 0
@@ -853,10 +859,10 @@ def kendall_tau(x: Iterable[float], y: Iterable[float], method: str = 'type_a') 
             raise StatisticsError("Attention toutes les valeurs sont liées.")
         return (concordant - discordant) / denom
     else:
-        raise StatisticsError("Attention methode non valide, method doit être 'type_a' ou 'type_b'")
+        raise StatisticsError("Attention méthode non valide, method doit être 'type_a' ou 'type_b'")
 
 def linear_regression(x: Iterable[float], y: Iterable[float], proportional: bool = False) -> Tuple[float, float]:
-    """Renvoie la pente et l'intersection à zéro de la régression linéaire de *x* et *y*.
+    """Renvoie la pente et l'ordonnée à l'origine de la régression linéaire de *x* et *y*.
     Soit a et b dans l'équation y = a * x + b .
 
     Args:
@@ -868,10 +874,10 @@ def linear_regression(x: Iterable[float], y: Iterable[float], proportional: bool
         StatisticsError: Lorsque les échantillons n'ont pas la même dimension.
         StatisticsError: Lorsque la taille des échantillons n'est pas assez grande.
         StatisticsError: Lorsque *x* est constant, sa variance est nulle.
-        StatisticsError: Lorsque *x* est un échantillon de zéro.
+        StatisticsError: Lorsque, pour une régression proportionnelle, toutes les valeurs de *x* sont nulles.
 
     Returns:
-        Tuple[float, float]: Pente et intersection à zéro de la régression linéaire.
+        Tuple[float, float]: Pente et l'ordonnée à l'origine de la régression linéaire.
     """
     x = list(x) if not isinstance(x, list) else x
     y = list(y) if not isinstance(y, list) else y
@@ -952,16 +958,16 @@ def quantiles(data: Iterable[float], n: int = 4, method: str = 'exclusive') -> L
         raise StatisticsError("Attention n doit être un entier non nul positif")
     if n > N :
         raise StatisticsError("Attention taille de l'entrée trop petite par rapport à n ")
+    if method not in ('inclusive', 'exclusive'):
+        raise StatisticsError("Attention méthode non valide, method doit être 'inclusive' ou 'exclusive'")
     L = sorted(data)
     result =[]
     for i in range(1,n):
         p = i / n
         if method == 'inclusive':
             r = p * (N - 1) + 1
-        elif method == 'exclusive':
+        else:       # method == "exclusive"
             r = p * (N + 1)
-        else:
-            raise StatisticsError("Attention method non valide, method doit être 'inclusive' ou 'exclusive'")
         k = int(r)
         d = r - k
         if k <= 0:
