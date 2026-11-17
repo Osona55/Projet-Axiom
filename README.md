@@ -1,6 +1,6 @@
-# MyModules
+# Projet Axiom
 
-Réimplémentation from scratch de plusieurs modules de la bibliothèque standard Python, avec un objectif d'apprentissage de l'algorithmique, des mathématiques et du fonctionnement interne des bibliothèques Python.
+Réimplémentation *from scratch* de plusieurs modules scientifiques de la bibliothèque standard Python, avec un objectif d'apprentissage de l'algorithmique, des mathématiques et du fonctionnement interne des bibliothèques Python.
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-in%20development-orange)](https://github.com/Osona55/MyModules)
@@ -9,7 +9,7 @@ Réimplémentation from scratch de plusieurs modules de la bibliothèque standar
 
 ## Présentation
 
-**MyModules** est un projet personnel dans lequel je réimplémente progressivement certaines fonctionnalités de la bibliothèque standard Python.
+**Projet Axiom** est un projet personnel dans lequel je réimplémente progressivement certaines fonctionnalités de la bibliothèque standard Python.
 
 L'objectif n'est pas de remplacer les bibliothèques officielles, mais de **comprendre comment elles peuvent être construites**, en travaillant directement sur les algorithmes et les méthodes mathématiques utilisées.
 
@@ -28,9 +28,9 @@ Le projet me permet notamment de travailler sur :
 
 ### `my_statistics`
 
-Réimplémentation progressive de fonctionnalités du module [`statistics`](https://docs.python.org/3/library/statistics.html).
+Réimplémentation de fonctionnalités du module [`statistics`](https://docs.python.org/3/library/statistics.html) mais aussi quelques-unes du module open-source [`scipy.stats`](https://docs.scipy.org/doc/scipy-1.18.0/reference/stats.html).
 
-Quelques fonctions déjà implémentées :
+Liste complète des fonctions implémentées :
 
 * `mean()`
 * `fmean()`
@@ -38,15 +38,34 @@ Quelques fonctions déjà implémentées :
 * `harmonic_mean()`
 * `trimmed_mean()`
 * `winsorized_mean()`
+* `trimean()`
+* `midhinge()`
 * `median()`
 * `median_low()`
 * `median_high()`
 * `median_grouped()`
-* médiane pondérée
-* quantiles
-* corrélations
-* statistiques descriptives
-* estimation de densité par noyau (`kde()`)
+* `weighted_median()`
+* `mode()`
+* `multimode()`
+* `pvariance()`
+* `variance()`
+* `pstdev()`
+* `stdev()`
+* `mean_absolute_deviation`
+* `median_absolute_deviation`
+* `range_()`
+* `midrange()`
+* `cv()`
+* `z_score()`
+* `skewness()`
+* `kurtosis()`
+* `covariance()`
+* `correlation()`
+* `kendall_tau()`
+* `linear_regression()`
+* `r_squared()`
+* `quantiles`
+* `kde()`
 
 La fonction `kde()` permet notamment d'utiliser plusieurs noyaux :
 
@@ -57,14 +76,14 @@ La fonction `kde()` permet notamment d'utiliser plusieurs noyaux :
 * triangulaire
 * parabolique / Epanechnikov
 * quartique
-
-Le module est toujours en développement et de nouvelles fonctions sont régulièrement ajoutées.
+* sextique
+* sinusoïdale
 
 ---
 
 ### `my_random`
 
-Réimplémentation progressive de fonctionnalités du module [`random`](https://docs.python.org/3/library/random.html).
+Réimplémentation des fonctionnalités du module [`random`](https://docs.python.org/3/library/random.html).
 
 Le générateur de base repose actuellement sur un **Linear Congruential Generator (LCG)** :
 
@@ -186,9 +205,29 @@ Ce projet est donc avant tout un **laboratoire d'expérimentation Python et math
 
 ## ⚠️ Important
 
-`MyModules` est un projet **éducatif et expérimental**.
+**Projet Axiom** est un projet **éducatif et expérimental**.
 
 Les modules développés ici ne sont pas destinés à remplacer les implémentations officielles de Python en production. Ils servent principalement à comprendre les algorithmes, expérimenter différentes approches et progresser en programmation.
+
+---
+
+## 📄 Licence
+
+Ce projet est distribué sous licence **MIT**.
+
+**Projet Axiom** est une réimplémentation indépendante et pédagogique de certaines fonctionnalités proposées par les modules standards de Python (`random`, `statistics`, `math`) et de SciPy (`scipy.stats`).
+
+Le projet n'est pas affilié au projet Python ni à la Python Software Foundation ni à SciPy.
+
+Voir le fichier [`LICENSE`](LICENSE) pour consulter le texte complet de la licence.
+
+---
+
+## 👤 Auteur
+
+Projet développé par **Osona55** dans le cadre d'un travail personnel autour de Python, de l'algorithmique et des mathématiques.
+
+Si le projet t'intéresse, n'hésite pas à explorer le code, ouvrir une issue ou proposer une amélioration.
 
 ---
 
@@ -196,7 +235,7 @@ Les modules développés ici ne sont pas destinés à remplacer les implémentat
 
 ```text
 statistics
-[##################..] Bientôt fini
+[####################] Fini
 
 random
 [#################...]  Bientôt fini
@@ -207,41 +246,10 @@ math
 
 ---
 
-## 📄 Licence
-
-Ce projet est distribué sous licence **MIT**.
-
-MyModules est une réimplémentation indépendante et pédagogique de certaines fonctionnalités proposées par les modules standards de Python (`random`, `statistics`, etc.).
-
-Le projet n'est pas affilié au projet Python ni à la Python Software Foundation.
-
-Voir le fichier [`LICENSE`](LICENSE) pour consulter le texte complet de la licence.
-
----
-
-## 👤 Auteur
-
-Projet développé par **Osona55** dans le cadre d'un travail personnel autour de Python, de l'algorithmique et des mathématiques.
-
-⭐ Si le projet t'intéresse, n'hésite pas à explorer le code, ouvrir une issue ou proposer une amélioration.
-
----
-
-## À propos
-
-`MyModules` est un projet pédagogique visant à réimplémenter progressivement certaines fonctionnalités de modules de la bibliothèque standard Python.
-
-Pour `my_random`, l'API et le comportement attendu des fonctions ont été étudiés à partir de la documentation officielle de Python, complétés par des tests et des expérimentations en Python.
-
-Les fonctions ont ensuite été réimplémentées indépendamment, avec mes propres choix d'algorithmes et d'implémentation.
-
-Le projet ne reprend pas le code source de la bibliothèque standard Python et n'est pas affilié au projet Python ni à la Python Software Foundation.
-
----
-
 ## 📚 Références
 
 * [Documentation Python — statistics](https://docs.python.org/3/library/statistics.html)
 * [Documentation Python — random](https://docs.python.org/3/library/random.html)
 * [Documentation Python — math](https://docs.python.org/3/library/math.html)
+* [Documentation SciPy — stats](https://docs.scipy.org/doc/scipy-1.18.0/reference/stats.html).
 * [Dépôt GitHub](https://github.com/Osona55/MyModules)
