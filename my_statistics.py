@@ -560,7 +560,7 @@ def range_(data: Iterable[float]) -> float:
     n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    return data[0] - data[-1]
+    return data[-1] - data[0]
 
 def midrange(data: Iterable[float]) -> float:
     """Renvoie la moitié de l'étendue de *data*.
@@ -578,7 +578,7 @@ def midrange(data: Iterable[float]) -> float:
     n = len(data)
     if n == 0:
         raise StatisticsError("Attention entrée vide")
-    return (data[0] + data[-1]) / 2
+    return (data[-1] + data[0]) / 2
 
 def cv(data: Iterable[float], method: str = 'sample') -> float:
     """Renvoie le coefficient de variation de *data* pour une population ou un échantillon.
